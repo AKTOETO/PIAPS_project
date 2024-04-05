@@ -1,0 +1,3 @@
+/home/bogdan/Documents/projects/MAI/PIAPS/build/CMakeFiles/catalog.dir
+/home/bogdan/Documents/projects/MAI/PIAPS/build/CMakeFiles/edit_cache.dir
+/home/bogdan/Documents/projects/MAI/PIAPS/build/CMakeFiles/rebuild_cache.dir
