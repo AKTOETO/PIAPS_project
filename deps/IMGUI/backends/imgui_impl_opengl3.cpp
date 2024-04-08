@@ -105,6 +105,9 @@
 //  ES 3.0    300       "#version 300 es"   = WebGL 2.0
 //----------------------------------------
 
+// tell Dear ImGui that we're using glad
+#define IMGUI_IMPL_OPENGL_LOADER_GLAD
+
 #if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
 #endif

@@ -26,7 +26,6 @@
 #define IMGUI_VERSION       "1.90.4"
 #define IMGUI_VERSION_NUM   19040
 #define IMGUI_HAS_TABLE
-
 /*
 
 Index of this file:
