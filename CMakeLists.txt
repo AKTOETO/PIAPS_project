@@ -10,17 +10,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-# include dependencies
-add_subdirectory(deps/SDL EXCLUDE_FROM_ALL)
-add_subdirectory(deps/GLAD EXCLUDE_FROM_ALL)
-
-# get files
+# source files
 file(GLOB_RECURSE src CONFIGURE_DEPENDS "src/*.h" "src/*.cpp")
 
 set(imgui_src ${CMAKE_SOURCE_DIR}/deps/IMGUI)
 
 set(src ${src}
-    #deps/GLAD/include/glad/glad.h
     # main IMGUI files
     ${imgui_src}/imconfig.h
     ${imgui_src}/imgui.cpp
@@ -35,8 +30,8 @@ set(src ${src}
     ${imgui_src}/imgui_tables.cpp
     
     # SDL + OPENGL 
-    ${imgui_src}/backends/imgui_impl_sdl2.cpp
-    ${imgui_src}/backends/imgui_impl_sdlrenderer2.cpp
+    ${imgui_src}/backends/imgui_impl_sdl3.cpp
+    ${imgui_src}/backends/imgui_impl_sdlrenderer3.cpp
     ${imgui_src}/backends/imgui_impl_opengl3.cpp
     ${imgui_src}/backends/imgui_impl_opengl3.h
 )
@@ -60,29 +55,19 @@ find_package(OpenGL REQUIRED)
 message(STATUS "OPENGL_INCLUDE_DIR:= ${OPENGL_INCLUDE_DIR}/GL")
 message(STATUS "OPENGL_LIBRARY:= ${OPENGL_LIBRARY}")
 message(STATUS "OPENGL_LIBRARIES:= ${OPENGL_LIBRARIES}")
-#include_directories(src ${src} ${OPENGL_INCLUDE_DIRS})
 
 set(LIBS ${LIBS} ${OPENGL_LIBRARIES})
 
 ####################################
-# GLAD
-####################################
-
-set(LIBS ${LIBS} GLAD)
-
-####################################
 # SDL
 ####################################
-# SDL2::SDL2main may or may not be available. It is e.g. required by Windows GUI applications
-if(TARGET SDL2::SDL2main)
-    # It has an implicit dependency on SDL2 functions, so it MUST be added before SDL2::SDL2 (or SDL2::SDL2-static)
-    #target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE SDL2::SDL2main)
-    set(LIBS ${LIBS} SDL2::SDL2main)
-endif()
 
-# Link to the actual SDL2 library. SDL2::SDL2 is the shared SDL library, SDL2::SDL2-static is the static SDL libarary.
-#target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE SDL2::SDL2)
-set(LIBS ${LIBS} SDL2::SDL2)
+set(SDL_SHARED FALSE CACHE BOOL "Build a SDL shared library")
+set(SDL_STATIC TRUE CACHE BOOL "Build a SDL static library")
+
+add_subdirectory(deps/SDL EXCLUDE_FROM_ALL)
+
+set(LIBS ${LIBS} SDL3::SDL3)
 
 ####################################
 
@@ -91,9 +76,6 @@ target_include_directories(${CMAKE_PROJECT_NAME}
     # opengl
     PUBLIC ${OPENGL_INCLUDE_DIR}/GL/
 
-    # Make GLAD includes avaliable
-    PUBLIC ${CMAKE_SOURCE_DIR}/deps/GLAD/include/
-
     # Make SDL2 available to Imgui
     PUBLIC ${CMAKE_SOURCE_DIR}/deps/SDL/include/
     
@@ -101,9 +83,6 @@ target_include_directories(${CMAKE_PROJECT_NAME}
     PUBLIC ${imgui_src}/
     PUBLIC ${imgui_src}/backends
 )
-
-# Configure Imgui to use OpengGL through SDL2
-# target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC IMGUI_IMPL_OPENGL_LOADER_CUSTOM=<SDL_opengl.h>  GL_GLEXT_PROTOTYPES=1)
 
 ####################################
 
