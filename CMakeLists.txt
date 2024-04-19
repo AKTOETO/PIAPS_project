@@ -65,7 +65,7 @@ set(LIBS ${LIBS} ${OPENGL_LIBRARIES})
 set(SDL_SHARED FALSE CACHE BOOL "Build a SDL shared library")
 set(SDL_STATIC TRUE CACHE BOOL "Build a SDL static library")
 
-add_subdirectory(deps/SDL EXCLUDE_FROM_ALL)
+add_subdirectory(deps/SDL3 EXCLUDE_FROM_ALL)
 
 set(LIBS ${LIBS} SDL3::SDL3)
 
@@ -77,7 +77,7 @@ target_include_directories(${CMAKE_PROJECT_NAME}
     PUBLIC ${OPENGL_INCLUDE_DIR}/GL/
 
     # Make SDL2 available to Imgui
-    PUBLIC ${CMAKE_SOURCE_DIR}/deps/SDL/include/
+    PUBLIC ${CMAKE_SOURCE_DIR}/deps/SDL3/include/
     
     # imgui/backends/ contains the SDL implementation
     PUBLIC ${imgui_src}/
