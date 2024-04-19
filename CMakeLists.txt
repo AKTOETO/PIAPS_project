@@ -70,18 +70,28 @@ add_subdirectory(deps/SDL3 EXCLUDE_FROM_ALL)
 set(LIBS ${LIBS} SDL3::SDL3)
 
 ####################################
+# PQXX
+####################################
+
+add_subdirectory(deps/PQXX build-pqxx)
+set(LIBS ${LIBS} pqxx)
+
+####################################
 
 # including directories
 target_include_directories(${CMAKE_PROJECT_NAME} 
     # opengl
     PUBLIC ${OPENGL_INCLUDE_DIR}/GL/
 
-    # Make SDL2 available to Imgui
+    # Make SDL3 available to Imgui
     PUBLIC ${CMAKE_SOURCE_DIR}/deps/SDL3/include/
     
     # imgui/backends/ contains the SDL implementation
     PUBLIC ${imgui_src}/
     PUBLIC ${imgui_src}/backends
+
+    # postgresql
+    PUBLIC ${CMAKE_SOURCE_DIR}/deps/PQXX/include/
 )
 
 ####################################
