@@ -113,6 +113,7 @@ int main(int, char**)
     // Our state
     bool show_demo_window = true;
     bool show_another_window = false;
+    bool show_pqxx_window = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Main loop
@@ -180,6 +181,18 @@ int main(int, char**)
             ImGui::Text("Hello from another window!");
             if (ImGui::Button("Close Me"))
                 show_another_window = false;
+            ImGui::End();
+        }
+
+        // pqxx text
+        {
+            ImGui::Begin("PostgreSql", &show_pqxx_window);
+            
+            //pqxx::connection c("postgresql://accounting@localhost/company");
+
+            //ImGui::Text("pqxx string: %s\n", c.dbname());
+            ImGui::Text("%s", u8"ало да помоги те");
+
             ImGui::End();
         }
 

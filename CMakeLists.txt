@@ -100,3 +100,13 @@ target_include_directories(${CMAKE_PROJECT_NAME}
 target_link_libraries(${CMAKE_PROJECT_NAME} ${LIBS})
 
 ####################################
+
+# copy assets folder
+add_custom_target(
+    copy_assets ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/assets"
+        "${CMAKE_BINARY_DIR}/bin/assets"
+    COMMENT "Copy assets from ${PROJECT_SOURCE_DIR}/assets to ${CMAKE_BINARY_DIR}/bin"
+)
+add_dependencies(${CMAKE_PROJECT_NAME} copy_assets)
