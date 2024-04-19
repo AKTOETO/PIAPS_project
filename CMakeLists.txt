@@ -110,3 +110,12 @@ add_custom_target(
     COMMENT "Copy assets from ${PROJECT_SOURCE_DIR}/assets to ${CMAKE_BINARY_DIR}/bin"
 )
 add_dependencies(${CMAKE_PROJECT_NAME} copy_assets)
+
+# If on Release, disable console window and enable optimizations
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    if (MSVC)
+        set_target_properties(LightWeightUI PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+        # Enable optimizations
+        target_compile_options(LightWeightUI PRIVATE /O2)
+    endif()
+endif()
