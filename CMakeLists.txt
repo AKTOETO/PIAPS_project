@@ -10,8 +10,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+# source folder
+set(SOURCES src)
+
+# include folder
+set(INCLUDE include)
+
 # source files
-file(GLOB_RECURSE src CONFIGURE_DEPENDS "src/*.h" "src/*.cpp")
+file(GLOB_RECURSE src CONFIGURE_DEPENDS ${INCLUDE}/*.h ${SOURCES}/*.cpp)
 
 set(imgui_src ${CMAKE_SOURCE_DIR}/deps/IMGUI)
 
@@ -92,6 +98,9 @@ target_include_directories(${CMAKE_PROJECT_NAME}
 
     # postgresql
     PUBLIC ${CMAKE_SOURCE_DIR}/deps/PQXX/include/
+
+    # include folder
+    PUBLIC ${CMAKE_SOURCE_DIR}/${INCLUDE}/
 )
 
 ####################################
