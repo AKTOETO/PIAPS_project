@@ -10,18 +10,44 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-# source folder
-set(SOURCES src)
+####################################
+#      INCLUDE AND SORCE FILES
+#       FOR CLIENT AND SERVER
+####################################
 
-# include folder
-set(INCLUDE include)
+# client sources
+set(CLIENT_SOURCES
+    src/client.cpp
+)
+
+# client includes
+set(CLIENT_INCLUDE
+    include/client.h
+)
+
+# server sources
+set(SERVER_SOURCES
+    src/server.cpp
+)
+
+# server includes
+set(SERVER_INCLUDE
+    include/server.h
+)
+
+####################################
 
 # source files
-file(GLOB_RECURSE src CONFIGURE_DEPENDS ${INCLUDE}/*.h ${SOURCES}/*.cpp)
+# file(GLOB_RECURSE src CONFIGURE_DEPENDS ${INCLUDE}/*.h ${SOURCES}/*.cpp)
 
+####################################
+#        SETTING UP IMGUI
+####################################
+
+# imgui folder
 set(imgui_src ${CMAKE_SOURCE_DIR}/deps/IMGUI)
 
-set(src ${src}
+set(IMGUI_SOURCES
     # main IMGUI files
     ${imgui_src}/imconfig.h
     ${imgui_src}/imgui.cpp
@@ -34,7 +60,7 @@ set(src ${src}
     ${imgui_src}/imstb_textedit.h
     ${imgui_src}/imstb_truetype.h
     ${imgui_src}/imgui_tables.cpp
-    
+
     # SDL + OPENGL 
     ${imgui_src}/backends/imgui_impl_sdl3.cpp
     ${imgui_src}/backends/imgui_impl_sdlrenderer3.cpp
@@ -42,8 +68,36 @@ set(src ${src}
     ${imgui_src}/backends/imgui_impl_opengl3.h
 )
 
-# create executable
-add_executable(${CMAKE_PROJECT_NAME} ${src})
+####################################
+#      GENERAL INCLUDE FOLDERS
+####################################
+
+# include folder
+set(GEN_INCLUDE_FOLDERS 
+    ${CMAKE_SOURCE_DIR}/include/
+    # opengl
+    ${OPENGL_INCLUDE_DIR}/GL/
+
+    # Make SDL3 available to Imgui
+    ${CMAKE_SOURCE_DIR}/deps/SDL3/include/
+
+    # imgui/backends/ contains the SDL implementation
+    ${imgui_src}/
+    ${imgui_src}/backends
+
+    # postgresql
+    ${CMAKE_SOURCE_DIR}/deps/PQXX/include/
+)
+
+####################################
+#           EXECUTABLES
+####################################
+
+# client
+add_executable(client ${IMGUI_SOURCES} ${CLIENT_INCLUDE} ${CLIENT_SOURCES})
+
+# server
+add_executable(server ${IMGUI_SOURCES} ${SERVER_INCLUDE} ${SERVER_SOURCES})
 
 ####################################
 #           LINK LIBS
@@ -51,6 +105,14 @@ add_executable(${CMAKE_PROJECT_NAME} ${src})
 
 # All libs to be linked
 set(LIBS)
+
+####################################
+# error
+####################################
+
+add_library(error STATIC src/error.cpp include/error.h)
+target_include_directories(error PUBLIC include/)
+set(LIBS ${LIBS} error)
 
 ####################################
 # OpenGL
@@ -78,36 +140,26 @@ set(LIBS ${LIBS} SDL3::SDL3)
 ####################################
 # PQXX
 ####################################
-
+set(SKIP_BUILD_TEST True)
 add_subdirectory(deps/PQXX build-pqxx)
 set(LIBS ${LIBS} pqxx)
 
 ####################################
-
-# including directories
-target_include_directories(${CMAKE_PROJECT_NAME} 
-    # opengl
-    PUBLIC ${OPENGL_INCLUDE_DIR}/GL/
-
-    # Make SDL3 available to Imgui
-    PUBLIC ${CMAKE_SOURCE_DIR}/deps/SDL3/include/
-    
-    # imgui/backends/ contains the SDL implementation
-    PUBLIC ${imgui_src}/
-    PUBLIC ${imgui_src}/backends
-
-    # postgresql
-    PUBLIC ${CMAKE_SOURCE_DIR}/deps/PQXX/include/
-
-    # include folder
-    PUBLIC ${CMAKE_SOURCE_DIR}/${INCLUDE}/
-)
-
+#      INCLUDING DIRECTORIES
 ####################################
 
-# Link SDL, IMGUI, GLAD to Executable
-target_link_libraries(${CMAKE_PROJECT_NAME} ${LIBS})
+target_include_directories(client PUBLIC ${GEN_INCLUDE_FOLDERS})
+target_include_directories(server PUBLIC ${GEN_INCLUDE_FOLDERS})
 
+####################################
+#      LINK ALL LIBS TO EXECS
+####################################
+
+target_link_libraries(client ${LIBS})
+target_link_libraries(server ${LIBS})
+
+####################################
+#    COPYING ASSET FOLDER TO BIN
 ####################################
 
 # copy assets folder
@@ -118,7 +170,8 @@ add_custom_target(
         "${CMAKE_BINARY_DIR}/bin/assets"
     COMMENT "Copy assets from ${PROJECT_SOURCE_DIR}/assets to ${CMAKE_BINARY_DIR}/bin"
 )
-add_dependencies(${CMAKE_PROJECT_NAME} copy_assets)
+add_dependencies(client copy_assets)
+add_dependencies(server copy_assets)
 
 # If on Release, disable console window and enable optimizations
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
