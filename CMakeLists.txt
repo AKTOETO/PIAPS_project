@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 3.22)
-project(catalog)
 
 # C++ standart
 set(CMAKE_CXX_STANDART 20)
 set(CMAKE_CXX_STANDART_REQUIRED True)
+
+# compiler settings
+set(CMAKE_C_COMPILER "/usr/bin/gcc-11")
+set(CMAKE_CXX_COMPILER "/usr/bin/g++-11")
+
+project(catalog)
 
 # installing binary folders
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -28,6 +33,7 @@ set(CLIENT_INCLUDE
 # server sources
 set(SERVER_SOURCES
     src/server.cpp
+    src/servermain.cpp
 )
 
 # server includes

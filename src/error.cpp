@@ -1,6 +1,9 @@
-#include "error.h"
+#ifdef __cplusplus
 extern "C"
 {
+#endif // !c++
+
+#include "error.h"
     // печатать информационные сообщения
     bool g_use_info = 1;
 
@@ -22,4 +25,6 @@ extern "C"
         else
             fprintf(out_stream, "\n\tНеизвестный тип ошибки <%s>\n", type);
     }
+#ifdef __cplusplus
 }
+#endif // !c++

@@ -1,8 +1,19 @@
-#ifndef ERRORS_H
-#define ERRORS_H
+#ifdef __cplusplus
 extern "C"
 {
-#include "inculdes.h"
+#endif // !c++
+
+#ifndef ERRORS_H
+#define ERRORS_H
+
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <errno.h>
+#include <pthread.h>
+#include <unistd.h>
 
 // цвета сообщений
 #define DEFAULT_WHITE "\033[0m"
@@ -45,5 +56,8 @@ extern "C"
 #define ERRORS(str) ERROR("%s", str);
 #define ERRORD(num) ERROR("%d", num);
 #define ERRORF(num) ERROR("%F", num);
-}
 #endif // !ERRORS_H
+
+#ifdef __cplusplus
+}
+#endif // !c++

@@ -5,20 +5,28 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <math.h>
 
 #include <sys/wait.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/msg.h>
 
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 #include <unistd.h>
+#include <math.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
 #include <pwd.h>
 #include <pthread.h>
 #include <semaphore.h>
+
+// c++
+#include <stdexcept>
+//#include <vector>
 
 // #include "utils.h"
 // #include "constants.h"
