@@ -15,9 +15,6 @@
 // разрешено ли использование INFO
 extern bool g_use_info;
 
-// поиск имени файла
-size_t findFileNamePos(const char* str);
-
 // печать справочной информации
 void printLog(
     FILE *out_stream, int pid, long tid,
