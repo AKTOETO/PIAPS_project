@@ -23,6 +23,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # client sources
 set(CLIENT_SOURCES
     src/client.cpp
+    src/clientmain.cpp
 )
 
 # client includes

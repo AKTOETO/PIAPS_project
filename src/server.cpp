@@ -60,8 +60,8 @@ void Server::Run()
             write(1, buf, nread);
 
             // отправка сообщения клиенту
-            const char *msg = "msg from server";
-            write(client_socket(), msg, sizeof(msg));
+            const char *msg = "msg from server\n";
+            write(client_socket(), msg, strlen(msg));
         }
     }
 
