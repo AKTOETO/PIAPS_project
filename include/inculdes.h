@@ -26,6 +26,7 @@
 
 // c++
 #include <stdexcept>
+#include <memory>
 //#include <vector>
 
 // #include "utils.h"

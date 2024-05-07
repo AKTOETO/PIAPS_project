@@ -121,6 +121,14 @@ target_include_directories(error PUBLIC include/)
 set(LIBS ${LIBS} error)
 
 ####################################
+# socket
+####################################
+
+add_library(socket STATIC src/socket.cpp include/socket.h)
+target_include_directories(socket PUBLIC include/)
+set(LIBS ${LIBS} socket)
+
+####################################
 # OpenGL
 ####################################
 

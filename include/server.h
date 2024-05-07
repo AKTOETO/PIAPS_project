@@ -6,6 +6,7 @@
 #include "inculdes.h"
 
 #include "error.h"
+#include "socket.h"
 
 // класс сервера
 class Server
@@ -13,18 +14,6 @@ class Server
 private:
     // запуск сервера
     void initServer();
-
-    // создание сокета
-    int createSocket(int domain, int type, int protocol);
-
-    // привязка сокета к адресу
-    void socketBind(int sockfd, const sockaddr *addr, socklen_t addrlen);
-
-    // задание значения очереди подключаемых клиентов
-    void socketListen(int sockfd, int backlog);
-
-    // принимаем подключение по прослушивающему сокету
-    int socketAccept(int sockfd, sockaddr *addr, socklen_t *addrlen);
 
 public:
     Server();
@@ -34,7 +23,7 @@ public:
 
 private:
     // сокет для прослушивания подключений
-    int m_listen_socket;
+    Socket m_listen_socket;
 
     // адрес сервера
     sockaddr_in m_server_addres;
