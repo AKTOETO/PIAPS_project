@@ -2,6 +2,7 @@
 
 void Socket::inetPton(const char *src, void *dst)
 {
+    INFOS("Получение ipv4 в виде числа из строки\n");
     int res = inet_pton(AF_INET, src, dst);
 
     if (res == 0)
@@ -17,13 +18,20 @@ void Socket::inetPton(const char *src, void *dst)
 }
 
 Socket::Socket(int domain, int type, int protocol)
-    : m_domain(domain)
+    : m_domain(domain), m_socket(-1)
 {
+    INFOS("Конструктор сокета\n");
     creates(domain, type, protocol);
+}
+
+Socket::Socket()
+    : m_socket(-1), m_domain(-1)
+{
 }
 
 void Socket::creates(int domain, int type, int protocol)
 {
+    INFOS("Создание сокета\n");
     m_domain = domain;
 
     // создаем сокет
@@ -45,6 +53,7 @@ Socket::~Socket()
 
 void Socket::binds(const sockaddr *addr, socklen_t addrlen)
 {
+    INFOS("Закрепление ip за сокетом\n");
     int res = bind(m_socket, addr, addrlen);
 
     // если произошла ошибка, сообщаем об этом
@@ -87,6 +96,7 @@ void Socket::binds(int port, const char *ip)
 
 void Socket::listens(int backlog)
 {
+    INFOS("Установка очереди прослушивания\n");
     int res = listen(m_socket, backlog);
 
     if (res == -1)
@@ -98,6 +108,7 @@ void Socket::listens(int backlog)
 
 void Socket::accepts(sockaddr *addr, socklen_t *addrlen, Socket *new_socket)
 {
+    INFOS("Установка соединения\n");
     new_socket->m_socket = accept(m_socket, addr, addrlen);
 
     if (new_socket->m_socket == -1)
@@ -109,12 +120,17 @@ void Socket::accepts(sockaddr *addr, socklen_t *addrlen, Socket *new_socket)
 
 void Socket::connects(const sockaddr *addr, socklen_t addrlen)
 {
+    INFOS("Запрос соединения\n");
     int res = connect(m_socket, addr, addrlen);
 
     if (res == -1)
     {
         ERRORS("Не получилось отправить запрос на соединение\n");
         throw std::runtime_error("connect error");
+    }
+    else if(res == 0)
+    {
+        INFOS("Соединеие установлено\n");
     }
 }
 

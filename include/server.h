@@ -28,8 +28,12 @@ private:
     // адрес сервера
     sockaddr_in m_server_addres;
 
-    // список сокетов клиентов
-    //std::vector<
+    // множества сокетов
+    fd_set m_master_set;    // главное множество
+    fd_set m_read_set;      // множество чтения
+
+    // максимальный дескриптор сокета
+    int m_max_socket_desc;
 };
 
 #endif // !SERVER_H

@@ -13,7 +13,7 @@ private:
 public:
     // создание сокета
     Socket(int domain, int type, int protocol);
-    Socket(){};
+    Socket();
 
     void creates(int domain, int type, int protocol);
 
