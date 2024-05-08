@@ -166,3 +166,11 @@ int Socket::operator()()
 {
     return m_socket;
 }
+
+void Socket::sends(const char *buf, int buf_len)
+{
+}
+
+void Socket::recvs(char *buf, int buf_size)
+{
+}

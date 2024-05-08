@@ -147,6 +147,7 @@ void Server::Run()
                     if(nread == -1)
                     {
                         FD_CLR(i, &m_master_set);
+                        close(i);
                         ERRORS("Прочитать не получилось\n");
                         throw std::runtime_error("read error");
                     }
@@ -154,6 +155,7 @@ void Server::Run()
                     else if(nread == 0)
                     {
                         FD_CLR(i, &m_master_set);
+                        close(i);
                         INFOS("Сокет закрылся со стороны клиента\n");
                     }
                     // обрабатываем полученное сообщение

@@ -39,6 +39,12 @@ public:
     // получение дескриптора сокета
     int operator()();
 
+    // отправка сообщения
+    void sends(const char *buf, int buf_len = 1024);
+
+    // получение сообщения
+    void recvs(char *buf, int buf_size = 1024);
+
 private:
     int m_socket; // дескриптор сокета
     int m_domain; // домен сокета (ipv4 / ipv6)
