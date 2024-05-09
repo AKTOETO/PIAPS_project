@@ -31,25 +31,31 @@ void Client::Run()
     // читаем с консоли сообщения и отправялем их серверу
     while(is_working)
     {
+        memset(buffer, '\n', buf_size);
+
         nread = read(STDIN_FILENO, buffer, buf_size);
+        printf("Считано: [%s]\n", buffer);
         if(buffer[0] == '#')
             is_working = false;
 
         // отправка на сервер
-        if(write(m_socket(), buffer, nread) == -1)
-        {
-            ERRORS("Ошибка отправки данных\n");
-            throw std::runtime_error("write error");
-        }
+        m_socket.sends(buffer, nread);
+        memset(buffer, '\n', buf_size);
+        //if(write(m_socket(), buffer, nread) == -1)
+        //{
+        //    ERRORS("Ошибка отправки данных\n");
+        //    throw std::runtime_error("write error");
+        //}
 
         // получение ответа:
-        nread = read(m_socket(), buffer, buf_size);
+        //nread = read(m_socket(), buffer, buf_size);
+        nread = m_socket.recvs(buffer, buf_size);
 
         // печать ответа в консоль
         printf("from server: [%s]\n", buffer);
     }
 
-    close(m_socket());
+    close(m_socket.getDescr());
 
 
 

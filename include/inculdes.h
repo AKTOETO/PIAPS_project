@@ -29,6 +29,8 @@
 #include <memory>
 #include <set>
 #include <vector>
+#include <functional>
+#include <unordered_map>
 
 // #include "utils.h"
 // #include "constants.h"

@@ -6,7 +6,7 @@
 #include "inculdes.h"
 
 #include "error.h"
-#include "socket.h"
+#include "socketset.h"
 
 // класс сервера
 class Server
@@ -22,15 +22,12 @@ public:
     void Run();
 
 private:
-    // сокет для прослушивания подключений
-    Socket m_listen_socket;
-
     // адрес сервера
     sockaddr_in m_server_addres;
 
     // множества сокетов
-    fd_set m_master_set;    // главное множество
-    fd_set m_read_set;      // множество чтения
+    SocketSet m_master_set;    // главное множество
+    SocketSet m_read_set;      // множество чтения
 
     // максимальный дескриптор сокета
     int m_max_socket_desc;

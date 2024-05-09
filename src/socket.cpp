@@ -17,16 +17,42 @@ void Socket::inetPton(const char *src, void *dst)
     }
 }
 
-Socket::Socket(int domain, int type, int protocol)
-    : m_domain(domain), m_socket(-1)
+void* Socket::standProcessing()
 {
-    INFOS("Конструктор сокета\n");
+    INFOS("Обработка соединения...\n");
+    return NULL;
+}
+
+Socket::Socket(int domain, int type, int protocol)
+    : Socket()
+{
     creates(domain, type, protocol);
+}
+
+Socket::Socket(int descriptor)
+    : Socket()
+{
+    m_socket = descriptor;
+    socklen_t domain_len = sizeof(m_domain);
+
+    // получение домена
+    if (getsockopt(m_socket, SOL_SOCKET, SO_DOMAIN, &m_domain, &domain_len) == 0)
+    {
+        if(m_domain == AF_INET)
+            INFOS("Домен IPv4\n");
+    }
+    else
+    {
+        ERRORS("Узнать домен сокета не получилось\n");
+        throw std::runtime_error("getsockopt error");
+    }
 }
 
 Socket::Socket()
     : m_socket(-1), m_domain(-1)
 {
+    INFOS("Конструктор сокета\n");
+    m_process_func = standProcessing;
 }
 
 void Socket::creates(int domain, int type, int protocol)
@@ -106,16 +132,27 @@ void Socket::listens(int backlog)
     }
 }
 
-void Socket::accepts(sockaddr *addr, socklen_t *addrlen, Socket *new_socket)
+Socket::pSocket Socket::accepts(sockaddr *addr, socklen_t *addrlen)
 {
     INFOS("Установка соединения\n");
-    new_socket->m_socket = accept(m_socket, addr, addrlen);
+    pSocket new_socket = std::make_unique<Socket>(accept(m_socket, addr, addrlen));
 
     if (new_socket->m_socket == -1)
     {
         ERRORS("Не получилось принять подключение\n");
         throw std::runtime_error("accept error");
     }
+    sockaddr_in client_addr = *(sockaddr_in *)addr;
+    INFO("Новый сокет %s:%d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+
+    return new_socket;
+}
+
+Socket::pSocket Socket::accepts()
+{
+    sockaddr_in client_addr;
+    socklen_t client_len = sizeof(client_addr);
+    return std::move(accepts((sockaddr *) &client_addr, &client_len));
 }
 
 void Socket::connects(const sockaddr *addr, socklen_t addrlen)
@@ -128,7 +165,7 @@ void Socket::connects(const sockaddr *addr, socklen_t addrlen)
         ERRORS("Не получилось отправить запрос на соединение\n");
         throw std::runtime_error("connect error");
     }
-    else if(res == 0)
+    else if (res == 0)
     {
         INFOS("Соединеие установлено\n");
     }
@@ -162,15 +199,56 @@ void Socket::connects(const char *ip, int port)
     connects((sockaddr *)&addr, sizeof(addr));
 }
 
-int Socket::operator()()
+int Socket::getDescr() const
 {
     return m_socket;
 }
 
 void Socket::sends(const char *buf, int buf_len)
 {
+    // отправка на сервер
+    if (write(m_socket, buf, buf_len) == -1)
+    {
+        ERRORS("Ошибка отправки данных\n");
+        throw std::runtime_error("write error");
+    }
+    else
+    {
+        INFO("Сообщение отправлено: [%s]\n", buf);
+    }
 }
 
-void Socket::recvs(char *buf, int buf_size)
+void Socket::sendall(const char *buff, int buf_len)
 {
+    // TODO: добавить возможность отправлять и получать сообщения большего размера, чем буфер
+    // путем деления сообщения на маленькие буферы до 1024 байт.
+    // алгоритм похожий есть в лабе по ос
+}
+
+int Socket::recvs(char *buf, int buf_len)
+{
+    int nread = read(m_socket, buf, buf_len);
+    if (nread == -1)
+    {
+        ERRORS("Ошибка при чтении\n");
+        throw std::runtime_error("read error");
+    }
+    else
+    {
+        INFO("Сообщение считано: [%s]\n", buf);
+    }
+    return nread;
+}
+
+int Socket::recvalls(char *buf, int buf_len)
+{
+    // TODO: добавить возможность отправлять и получать сообщения большего размера, чем буфер
+    // путем деления сообщения на маленькие буферы до 1024 байт.
+    // алгоритм похожий есть в лабе по ос
+    return 0;
+}
+
+void* Socket::operator()()
+{
+    return std::move(m_process_func());
 }

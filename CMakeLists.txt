@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDART_REQUIRED True)
 # compiler settings
 set(CMAKE_C_COMPILER "/usr/bin/gcc-11")
 set(CMAKE_CXX_COMPILER "/usr/bin/g++-11")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -fsanitize=address -g")
+#set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -fsanitize=address -g")
 
 project(catalog)
 
@@ -48,6 +50,71 @@ set(SERVER_INCLUDE
 # file(GLOB_RECURSE src CONFIGURE_DEPENDS ${INCLUDE}/*.h ${SOURCES}/*.cpp)
 
 ####################################
+#      GENERAL INCLUDE FOLDERS
+####################################
+
+# include folder
+set(GEN_INCLUDE_FOLDERS 
+    ${CMAKE_SOURCE_DIR}/include/
+    # opengl
+    ${OPENGL_INCLUDE_DIR}/GL/
+
+    # Make SDL3 available to Imgui
+    ${CMAKE_SOURCE_DIR}/deps/SDL3/include/
+
+    # imgui/backends/ contains the SDL implementation
+    ${imgui_src}/
+    ${imgui_src}/backends
+
+    # postgresql
+    ${CMAKE_SOURCE_DIR}/deps/PQXX/include/
+)
+
+####################################
+#           EXECUTABLES
+####################################
+
+# client
+add_executable(client ${IMGUI_SOURCES} ${CLIENT_INCLUDE} ${CLIENT_SOURCES})
+target_compile_options(client PRIVATE -W -Wall -fsanitize=address -g)
+target_link_options(client PRIVATE -fsanitize=address)
+
+# server
+add_executable(server ${IMGUI_SOURCES} ${SERVER_INCLUDE} ${SERVER_SOURCES})
+target_compile_options(server PRIVATE -W -Wall -fsanitize=address -g)
+target_link_options(server PRIVATE -fsanitize=address)
+
+####################################
+#           LINK LIBS
+####################################
+
+# All libs to be linked
+set(LIBS)
+
+####################################
+# error
+####################################
+
+add_library(error STATIC src/error.cpp include/error.h)
+target_include_directories(error PUBLIC 
+    include/ 
+)
+set(LIBS ${LIBS} error)
+
+####################################
+# socket
+####################################
+
+add_library(socket STATIC 
+    src/socket.cpp
+    src/socketset.cpp
+    include/socket.h
+    include/socketset.h
+)
+target_include_directories(socket PUBLIC include/)
+set(LIBS ${LIBS} socket)
+
+####################################
 #        SETTING UP IMGUI
 ####################################
 
@@ -75,60 +142,12 @@ set(IMGUI_SOURCES
     ${imgui_src}/backends/imgui_impl_opengl3.h
 )
 
-####################################
-#      GENERAL INCLUDE FOLDERS
-####################################
-
-# include folder
-set(GEN_INCLUDE_FOLDERS 
-    ${CMAKE_SOURCE_DIR}/include/
-    # opengl
-    ${OPENGL_INCLUDE_DIR}/GL/
-
-    # Make SDL3 available to Imgui
+add_library(imgui STATIC ${IMGUI_SOURCES})
+target_include_directories(imgui PUBLIC 
+    ${imgui_src}
     ${CMAKE_SOURCE_DIR}/deps/SDL3/include/
-
-    # imgui/backends/ contains the SDL implementation
-    ${imgui_src}/
-    ${imgui_src}/backends
-
-    # postgresql
-    ${CMAKE_SOURCE_DIR}/deps/PQXX/include/
 )
-
-####################################
-#           EXECUTABLES
-####################################
-
-# client
-add_executable(client ${IMGUI_SOURCES} ${CLIENT_INCLUDE} ${CLIENT_SOURCES})
-
-# server
-add_executable(server ${IMGUI_SOURCES} ${SERVER_INCLUDE} ${SERVER_SOURCES})
-
-####################################
-#           LINK LIBS
-####################################
-
-# All libs to be linked
-set(LIBS)
-
-####################################
-# error
-####################################
-
-add_library(error STATIC src/error.cpp include/error.h)
-target_include_directories(error PUBLIC include/)
-set(LIBS ${LIBS} error)
-
-####################################
-# socket
-####################################
-
-add_library(socket STATIC src/socket.cpp include/socket.h)
-target_include_directories(socket PUBLIC include/)
-set(LIBS ${LIBS} socket)
-
+set(LIBS ${LIBS} imgui)
 ####################################
 # OpenGL
 ####################################
