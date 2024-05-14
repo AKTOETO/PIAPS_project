@@ -62,8 +62,8 @@ public:
     void setProcessFunct(std::function<void*()>);
 
 private:
-    int m_socket;                           // дескриптор сокета
-    int m_domain;                           // домен сокета (ipv4 / ipv6)
+    int m_socket;                            // дескриптор сокета
+    int m_domain;                            // домен сокета (ipv4 / ipv6)
     std::function<void*()> m_process_func;   // функция обработки соединения
 };
 

@@ -250,5 +250,8 @@ int Socket::recvalls(char *buf, int buf_len)
 
 void* Socket::operator()()
 {
-    return std::move(m_process_func());
+    if(m_process_func)
+        return std::move(m_process_func());
+    ERRORS("Не существует функции обработки работы сокета\n");
+    return nullptr;
 }
