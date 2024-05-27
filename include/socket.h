@@ -61,6 +61,9 @@ public:
     // установка функции обработки соединения
     void setProcessFunct(std::function<void*()>);
 
+    // закрытие сокета
+    void closes();
+
 private:
     int m_socket;                            // дескриптор сокета
     int m_domain;                            // домен сокета (ipv4 / ipv6)

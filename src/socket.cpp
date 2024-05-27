@@ -20,6 +20,7 @@ void Socket::inetPton(const char *src, void *dst)
 void* Socket::standProcessing()
 {
     INFOS("Обработка соединения...\n");
+    std::this_thread::sleep_for(1s);
     return NULL;
 }
 
@@ -73,8 +74,7 @@ void Socket::creates(int domain, int type, int protocol)
 
 Socket::~Socket()
 {
-    INFOS("Закрытие сокета\n");
-    close(m_socket);
+    closes();
 }
 
 void Socket::binds(const sockaddr *addr, socklen_t addrlen)
@@ -254,4 +254,10 @@ void* Socket::operator()()
         return std::move(m_process_func());
     ERRORS("Не существует функции обработки работы сокета\n");
     return nullptr;
+}
+
+void Socket::closes()
+{
+    INFOS("Закрытие сокета\n");
+    close(m_socket);
 }
