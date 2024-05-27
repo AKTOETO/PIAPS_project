@@ -6,7 +6,7 @@
 #include "inculdes.h"
 
 #include "error.h"
-#include "socketset.h"
+#include "serversocket.h"
 
 // класс сервера
 class Server
@@ -28,6 +28,9 @@ public:
     // обработка ввода с консоли
     void consoleInput();
 
+    // удаление ненужных сокетов
+    void deleteSocketProcessing();
+
 private:
     // работает ли сервер
     std::atomic_bool m_is_running;
@@ -36,13 +39,13 @@ private:
     sockaddr_in m_server_addres;
 
     // сокет сервера
-    Socket::pSocket m_listen_socket;
+    ServerSocket::pSSocket m_listen_socket;
 
     // список потоков-обработчиков каждого клиента
     std::vector<std::thread> m_clients_threads;
 
     // список сокетов клиентов
-    std::vector<Socket::pSocket> m_clients_sockets;
+    std::vector<ServerSocket::pSSocket> m_clients_sockets;
 
     // блокировка доступа к спсикам потоков и клиентов
     std::mutex m_mutex;

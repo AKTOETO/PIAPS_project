@@ -5,11 +5,11 @@ void Server::initServer()
     INFOS("Запуск сервера\n");
 
     // // обнуляем все множества
-    //FD_ZERO(&m_master);
+    // FD_ZERO(&m_master);
     // FD_ZERO(&m_read_set);
 
     // создаем сокет для прослушки подключений (IPv4, TCP, протокол по умолчанию)
-    m_listen_socket = std::make_shared<Socket>(AF_INET, SOCK_STREAM, 0);
+    m_listen_socket = std::make_shared<ServerSocket>(AF_INET, SOCK_STREAM, 0);
 
     // заставляем слушать сокет все адреса с портом 12321
     m_listen_socket->binds(12321);
@@ -18,17 +18,17 @@ void Server::initServer()
     m_listen_socket->listens(5);
 
     // добавляем прослушивающий сокет в мастер множество
-    //FD_SET(m_listen_socket->getDescr(), &m_master);
-    //m_master_set.add(m_listen_socket);
+    // FD_SET(m_listen_socket->getDescr(), &m_master);
+    // m_master_set.add(m_listen_socket);
 
     // устанавливаем максимальный дескриптор в множестве
-    //m_max_socket_desc = m_listen_socket->getDescr();
+    // m_max_socket_desc = m_listen_socket->getDescr();
 
-    //INFO("маскимальный дескриптор в множестве %d\n", m_max_socket_desc);
+    // INFO("маскимальный дескриптор в множестве %d\n", m_max_socket_desc);
 }
 
 Server::Server()
-    :  m_is_running(true), m_server_addres({0,0,0,0}) //, m_master_set(), m_read_set(), m_max_socket_desc(0)
+    : m_is_running(true), m_server_addres({0, 0, 0, 0}) //, m_master_set(), m_read_set(), m_max_socket_desc(0)
 {
     initServer();
 }
@@ -36,10 +36,10 @@ Server::Server()
 Server::~Server()
 {
     // ожидаем завершения всех потоков
-    for(auto& el: m_clients_threads)
+    for (auto &el : m_clients_threads)
     {
         el.join();
-    }    
+    }
 }
 
 void Server::Run()
@@ -49,17 +49,19 @@ void Server::Run()
     // создание потока для обработки входящих соединений
     std::thread input_connect(&Server::connectionProcessing, this);
 
+    // создание потока удаления ненужных сокетов
+    std::thread delete_socket(&Server::deleteSocketProcessing, this);
+
     // создание потока обработки ввода с консоли
     std::thread input_console(&Server::consoleInput, this);
 
     // ожидание завершения работы вывода с консоли
     input_console.join();
 
-    // ожидание завершения работы функции обработки входящих соединений
     input_connect.detach();
+    delete_socket.detach();
 
-
-    //std::vector<Socket::pSocket> all_clients;
+    // std::vector<Socket::pSocket> all_clients;
 
     // обрабатываем сигналы с сокетов
     // while (true)
@@ -181,10 +183,11 @@ void Server::connectionProcessing()
     INFOS("Обработка соединений\n");
 
     // цикл обработки подключений клиентов
-    while(m_is_running.load())
+    while (m_is_running.load())
     {
         // вызываем accept, если нет соединений, поток блокируется
         auto new_socket = m_listen_socket->accepts();
+        //new_socket->setProcessFunct(new_socket->procServer);
 
         // критическая секция доступа к списку сокетов и потоков
         {
@@ -207,16 +210,30 @@ void Server::consoleInput()
     std::string str;
 
     // читаем команды в цикле
-    while(m_is_running.load() && std::getline(std::cin, str))
+    while (m_is_running.load() && std::getline(std::cin, str))
     {
         printf("console> [%s]\n", str.c_str());
 
         // если пришла команда exit - выходим
-        if(str == "exit")
+        if (str == "exit")
         {
             INFOS("Выходим\n");
             m_is_running = false;
-            m_listen_socket->closes();
+        }
+    }
+}
+
+void Server::deleteSocketProcessing()
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    for (size_t i = 0; i < m_clients_sockets.size(); i++)
+    {
+        // если сокет помечен для удаления, удаляем его
+        if (m_clients_sockets[i]->getDeleteStatus())
+        {
+            m_clients_sockets.erase(m_clients_sockets.begin() + i);
+            m_clients_threads[i].join();
+            m_clients_threads.erase(m_clients_threads.begin() + i);
         }
     }
 }

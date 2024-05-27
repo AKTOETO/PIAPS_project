@@ -17,12 +17,13 @@ void Socket::inetPton(const char *src, void *dst)
     }
 }
 
-void* Socket::standProcessing()
-{
-    INFOS("Обработка соединения...\n");
-    std::this_thread::sleep_for(1s);
-    return NULL;
-}
+// void *Socket::standProcessing()
+// {
+//     INFOS("Обработка соединения...\n");
+//     std::this_thread::sleep_for(5s);
+
+//     return NULL;
+// }
 
 Socket::Socket(int domain, int type, int protocol)
     : Socket()
@@ -39,7 +40,7 @@ Socket::Socket(int descriptor)
     // получение домена
     if (getsockopt(m_socket, SOL_SOCKET, SO_DOMAIN, &m_domain, &domain_len) == 0)
     {
-        if(m_domain == AF_INET)
+        if (m_domain == AF_INET)
             INFOS("Домен IPv4\n");
     }
     else
@@ -50,10 +51,9 @@ Socket::Socket(int descriptor)
 }
 
 Socket::Socket()
-    : m_socket(-1), m_domain(-1)
+    : m_socket(-1), m_domain(-1), m_should_be_deleted(0) 
 {
     INFOS("Конструктор сокета\n");
-    m_process_func = standProcessing;
 }
 
 void Socket::creates(int domain, int type, int protocol)
@@ -77,157 +77,171 @@ Socket::~Socket()
     closes();
 }
 
-void Socket::binds(const sockaddr *addr, socklen_t addrlen)
-{
-    INFOS("Закрепление ip за сокетом\n");
-    int res = bind(m_socket, addr, addrlen);
+// void Socket::binds(const sockaddr *addr, socklen_t addrlen)
+// {
+//     INFOS("Закрепление ip за сокетом\n");
+//     int res = bind(m_socket, addr, addrlen);
 
-    // если произошла ошибка, сообщаем об этом
-    if (res == -1)
-    {
-        ERRORS("Не получилось прикрепить сокет к адресу\n");
-        throw std::runtime_error("bind error");
-    }
-}
+//     // если произошла ошибка, сообщаем об этом
+//     if (res == -1)
+//     {
+//         ERRORS("Не получилось прикрепить сокет к адресу\n");
+//         throw std::runtime_error("bind error");
+//     }
+// }
 
-void Socket::binds(int port, uint32_t ip)
-{
-    // структура хранения адреса ipv4
-    sockaddr_in addr;
+// void Socket::binds(int port, uint32_t ip)
+// {
+//     // структура хранения адреса ipv4
+//     sockaddr_in addr;
 
-    // Записываем семейство адресов, порт сервера, адрес сервера.
-    addr.sin_family = m_domain;
-    addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = htonl(ip);
+//     // Записываем семейство адресов, порт сервера, адрес сервера.
+//     addr.sin_family = m_domain;
+//     addr.sin_port = htons(port);
+//     addr.sin_addr.s_addr = htonl(ip);
 
-    // вызов уже существующей функции binds
-    binds((sockaddr *)&addr, sizeof(addr));
-}
+//     // вызов уже существующей функции binds
+//     binds((sockaddr *)&addr, sizeof(addr));
+// }
 
-void Socket::binds(int port, const char *ip)
-{
-    // структура хранения адреса ipv4
-    sockaddr_in addr;
+// void Socket::binds(int port, const char *ip)
+// {
+//     // структура хранения адреса ipv4
+//     sockaddr_in addr;
 
-    // Записываем семейство адресов, порт сервера, адрес сервера.
-    addr.sin_family = m_domain;
-    addr.sin_port = htons(port);
-    // addr.sin_addr.s_addr = htonl(ip);
-    // inet_pton(AF_INET, ip, &addr.sin_addr);
-    inetPton(ip, &addr.sin_addr);
+//     // Записываем семейство адресов, порт сервера, адрес сервера.
+//     addr.sin_family = m_domain;
+//     addr.sin_port = htons(port);
+//     // addr.sin_addr.s_addr = htonl(ip);
+//     // inet_pton(AF_INET, ip, &addr.sin_addr);
+//     inetPton(ip, &addr.sin_addr);
 
-    // вызов уже существующей функции binds
-    binds((sockaddr *)&addr, sizeof(addr));
-}
+//     // вызов уже существующей функции binds
+//     binds((sockaddr *)&addr, sizeof(addr));
+// }
 
-void Socket::listens(int backlog)
-{
-    INFOS("Установка очереди прослушивания\n");
-    int res = listen(m_socket, backlog);
+// void Socket::listens(int backlog)
+// {
+//     INFOS("Установка очереди прослушивания\n");
+//     int res = listen(m_socket, backlog);
 
-    if (res == -1)
-    {
-        ERRORS("Не получилось задать длину очереди подключаемых клиентов для сокета\n");
-        throw std::runtime_error("listen error");
-    }
-}
+//     if (res == -1)
+//     {
+//         ERRORS("Не получилось задать длину очереди подключаемых клиентов для сокета\n");
+//         throw std::runtime_error("listen error");
+//     }
+// }
 
-Socket::pSocket Socket::accepts(sockaddr *addr, socklen_t *addrlen)
-{
-    INFOS("Установка соединения\n");
-    pSocket new_socket = std::make_unique<Socket>(accept(m_socket, addr, addrlen));
+// Socket::pSocket Socket::accepts(sockaddr *addr, socklen_t *addrlen)
+// {
+//     INFOS("Установка соединения\n");
+//     pSocket new_socket = std::make_unique<Socket>(accept(m_socket, addr, addrlen));
 
-    if (new_socket->m_socket == -1)
-    {
-        ERRORS("Не получилось принять подключение\n");
-        throw std::runtime_error("accept error");
-    }
-    sockaddr_in client_addr = *(sockaddr_in *)addr;
-    INFO("Новый сокет %s:%d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+//     if (new_socket->m_socket == -1)
+//     {
+//         ERRORS("Не получилось принять подключение\n");
+//         throw std::runtime_error("accept error");
+//     }
+//     sockaddr_in client_addr = *(sockaddr_in *)addr;
+//     INFO("Новый сокет %s:%d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
-    return new_socket;
-}
+//     return new_socket;
+// }
 
-Socket::pSocket Socket::accepts()
-{
-    sockaddr_in client_addr;
-    socklen_t client_len = sizeof(client_addr);
-    return std::move(accepts((sockaddr *) &client_addr, &client_len));
-}
+// Socket::pSocket Socket::accepts()
+// {
+//     sockaddr_in client_addr;
+//     socklen_t client_len = sizeof(client_addr);
+//     return std::move(accepts((sockaddr *)&client_addr, &client_len));
+// }
 
-void Socket::connects(const sockaddr *addr, socklen_t addrlen)
-{
-    INFOS("Запрос соединения\n");
-    int res = connect(m_socket, addr, addrlen);
+// void Socket::connects(const sockaddr *addr, socklen_t addrlen)
+// {
+//     INFOS("Запрос соединения\n");
+//     int res = connect(m_socket, addr, addrlen);
 
-    if (res == -1)
-    {
-        ERRORS("Не получилось отправить запрос на соединение\n");
-        throw std::runtime_error("connect error");
-    }
-    else if (res == 0)
-    {
-        INFOS("Соединеие установлено\n");
-    }
-}
+//     if (res == -1)
+//     {
+//         ERRORS("Не получилось отправить запрос на соединение\n");
+//         throw std::runtime_error("connect error");
+//     }
+//     else if (res == 0)
+//     {
+//         INFOS("Соединеие установлено\n");
+//     }
+// }
 
-void Socket::connects(uint32_t ip, int port)
-{
-    // структура хранения адреса ipv4
-    sockaddr_in addr;
+// void Socket::connects(uint32_t ip, int port)
+// {
+//     // структура хранения адреса ipv4
+//     sockaddr_in addr;
 
-    // Записываем семейство адресов, порт сервера, адрес сервера.
-    addr.sin_family = m_domain;
-    addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = htonl(ip);
+//     // Записываем семейство адресов, порт сервера, адрес сервера.
+//     addr.sin_family = m_domain;
+//     addr.sin_port = htons(port);
+//     addr.sin_addr.s_addr = htonl(ip);
 
-    // вызов уже существующей функции connects
-    connects((sockaddr *)&addr, sizeof(addr));
-}
+//     // вызов уже существующей функции connects
+//     connects((sockaddr *)&addr, sizeof(addr));
+// }
 
-void Socket::connects(const char *ip, int port)
-{
-    // структура хранения адреса ipv4
-    sockaddr_in addr;
+// void Socket::connects(const char *ip, int port)
+// {
+//     // структура хранения адреса ipv4
+//     sockaddr_in addr;
 
-    // Записываем семейство адресов, порт сервера, адрес сервера.
-    addr.sin_family = m_domain;
-    addr.sin_port = htons(port);
-    inetPton(ip, &addr.sin_addr);
+//     // Записываем семейство адресов, порт сервера, адрес сервера.
+//     addr.sin_family = m_domain;
+//     addr.sin_port = htons(port);
+//     inetPton(ip, &addr.sin_addr);
 
-    // вызов уже существующей функции binds
-    connects((sockaddr *)&addr, sizeof(addr));
-}
+//     // вызов уже существующей функции binds
+//     connects((sockaddr *)&addr, sizeof(addr));
+// }
 
 int Socket::getDescr() const
 {
     return m_socket;
 }
 
-void Socket::sends(const char *buf, int buf_len)
+int Socket::sends(const char *buf, int buf_len, int flag)
 {
+    int n = 0;
+
     // отправка на сервер
-    if (write(m_socket, buf, buf_len) == -1)
+    if ((n = send(m_socket, buf, buf_len, flag)) == -1)
     {
         ERRORS("Ошибка отправки данных\n");
         throw std::runtime_error("write error");
     }
-    else
-    {
-        INFO("Сообщение отправлено: [%s]\n", buf);
-    }
+
+    INFO("Сообщение отправлено: [%s]\n", buf);
+    return n;
 }
 
-void Socket::sendall(const char *buff, int buf_len)
+int Socket::sendall(const char *buf, int buf_len, int flag)
 {
     // TODO: добавить возможность отправлять и получать сообщения большего размера, чем буфер
     // путем деления сообщения на маленькие буферы до 1024 байт.
     // алгоритм похожий есть в лабе по ос
+
+    // количество отправленных байт
+    int total = 0;
+    int n;
+
+    // отправялем сообщения, пока не отправится весь буфер
+    while (total < buf_len)
+    {
+        n = sends(buf + total, buf_len - total, flag);
+        total += n;
+    }
+
+    return total;
 }
 
-int Socket::recvs(char *buf, int buf_len)
+int Socket::recvs(char *buf, int buf_len, int flag)
 {
-    int nread = read(m_socket, buf, buf_len);
+    int nread = recv(m_socket, buf, buf_len, flag);
     if (nread == -1)
     {
         ERRORS("Ошибка при чтении\n");
@@ -240,24 +254,117 @@ int Socket::recvs(char *buf, int buf_len)
     return nread;
 }
 
-int Socket::recvalls(char *buf, int buf_len)
+int Socket::recvalls(char **buf, int &buf_len, int flag)
 {
     // TODO: добавить возможность отправлять и получать сообщения большего размера, чем буфер
     // путем деления сообщения на маленькие буферы до 1024 байт.
     // алгоритм похожий есть в лабе по ос
+
+    // очищаем память
+    if (*buf != NULL)
+    {
+        delete[] *buf;
+    }
+
+    // длина буфера одного чтения
+    const int len = 1024;
+
+    //  текущий размер строки
+    buf_len = 0;
+
+    // всего получено байт
+    int total = 0;
+
+    // количество считанных байт за одно чтение
+    int nread = 0;
+
+    do
+    {
+        // если всего считано больше или равно длине строки,
+        // увелчиваем память
+        if (total >= buf_len)
+        {
+            buf_len += len;
+            *buf = (char *)realloc(*buf, buf_len);
+            if (*buf == NULL)
+            {
+                ERRORS("realloc error\n");
+                throw std::runtime_error("realloc error");
+            }
+        }
+
+        // читаем сообщение
+        nread = recvs(*buf + buf_len, len);
+
+        // если получили 0, значит сокет закрылся и нужно закрыть сокет
+        if (nread == 0)
+        {
+            INFOS("Сокет закрылся\n");
+            return 0;
+        }
+        // если получили меньше нуля, значит ошибка
+        else if (nread < 0)
+        {
+            ERRORS("Ошибка при чтении всего\n");
+            throw std::runtime_error("readall error");
+        }
+        // иначе получили блок данных
+        else
+        {
+            buf_len += nread;
+            INFO("Получен блок данных размером %d\n", nread);
+        }
+
+    } while (nread > 0);
+
     return 0;
 }
 
-void* Socket::operator()()
+void *Socket::operator()()
 {
-    if(m_process_func)
-        return std::move(m_process_func());
-    ERRORS("Не существует функции обработки работы сокета\n");
+    return processLogic();
+}
+
+// void *Socket::procServer()
+// {
+//     INFOS("Обработка сокета со стороны сервера\n");
+
+//     int status = 0;
+
+//     // пока сокет открыт, читаем буфер
+//     do
+//     {
+//         recvalls()
+
+
+//     } while (status > 0);
+    
+
+//     return nullptr;
+// }
+
+// void *Socket::procClient()
+// {
+//     INFOS("Обработка сокета со стороны клиента\n");
+//     return nullptr;
+// }
+
+void *Socket::processLogic()
+{
+    INFOS("Обработка соединения...\n");
+    std::this_thread::sleep_for(5s);
+
     return nullptr;
 }
 
 void Socket::closes()
 {
     INFOS("Закрытие сокета\n");
+    m_should_be_deleted = 1;
     close(m_socket);
+}
+
+bool Socket::getDeleteStatus() const
+{
+    return m_should_be_deleted;
 }

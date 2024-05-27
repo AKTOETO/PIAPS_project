@@ -107,9 +107,11 @@ set(LIBS ${LIBS} error)
 
 add_library(socket STATIC 
     src/socket.cpp
-    src/socketset.cpp
+    src/clientsocket.cpp
+    src/serversocket.cpp
     include/socket.h
-    include/socketset.h
+    include/clientsocket.h
+    include/serversocket.h
 )
 target_include_directories(socket PUBLIC include/)
 set(LIBS ${LIBS} socket)

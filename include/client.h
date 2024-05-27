@@ -6,7 +6,7 @@
 #include "inculdes.h"
 
 #include "error.h"
-#include "socket.h"
+#include "clientsocket.h"
 
 // класс сервера
 class Client
@@ -22,7 +22,7 @@ public:
 
 private:
     // сокет для запроса подключений
-    Socket m_socket;
+    ClientSocket m_socket;
 };
 
 #endif // !SERVER_H
