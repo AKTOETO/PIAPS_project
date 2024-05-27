@@ -46,10 +46,20 @@ public:
 
     // отправка сообщения
     int sends(const char *buf, int buf_len = 1024, int flag = 0);
+    /// @brief Отправка большого буфера данных
+    /// @param buff буфер данных
+    /// @param buf_len его длина
+    /// @param flag флаги для send
+    /// @return количество отправленных байт
     int sendall(const char *buff, int buf_len, int flag = 0);
 
     // получение сообщения
     int recvs(char *buf, int buf_len = 1024, int flag = 0);
+    /// @brief Получение большого блока данных в буфер
+    /// @param buf буфер данных
+    /// @param buf_len его длина 
+    /// @param flag флаги для recv
+    /// @return 0 - сокет закрылся, 1 - иначе
     int recvalls(char **buf, int &buf_len, int flag = 0);
 
     // вызов функции обработки соединения сокетом

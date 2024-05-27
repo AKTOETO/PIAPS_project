@@ -66,6 +66,23 @@ void ClientSocket::connects(const char *ip, int port)
 void *ClientSocket::processLogic()
 {
     INFOS("Обработка сокета со стороны клиента\n");
-    std::this_thread::sleep_for(1s);
+
+    std::string str;
+    while (std::getline(std::cin, str) && str != "end")
+    {
+        // отправляем сообщение с консоли на сервер
+        sendall(str.c_str(), str.length());
+
+        // читаем ответ сервера
+        char *buf = NULL;
+        int len;
+        recvalls(&buf, len);
+        buf[len - 1] = 0;
+
+        printf("server> [%s]\n", buf);
+
+        free(buf);
+    }
+
     return nullptr;
 }

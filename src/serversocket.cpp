@@ -104,12 +104,26 @@ void *ServerSocket::processLogic()
     int status = 0;
 
     // пока сокет открыт, читаем буфер
-    // do
-    //{
-    //    // recvalls()
-    //
-    //} while (status > 0);
-    std::this_thread::sleep_for(1s);
+    do
+    {
+        char *buf;
+        int len = 0;
+
+        // читаем большой буфер данных
+        status = recvalls(&buf, len);
+        buf[len - 1] = 0;
+
+        // печатаем его в консоль
+        printf("recieved> [%s]\n", buf);
+
+        // отправляем ответ
+        //scanf("%s", buf);
+        std::cin>>buf;
+        sendall(buf, strlen(buf));
+
+        delete[] buf;
+    
+    } while (status != 0);
 
     return nullptr;
 }

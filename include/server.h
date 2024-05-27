@@ -15,13 +15,6 @@ private:
     // запуск сервера
     void initServer();
 
-public:
-    Server();
-    ~Server();
-
-    // начало работы
-    void Run();
-
     // обработка входящихй соединений
     void connectionProcessing();
 
@@ -30,6 +23,13 @@ public:
 
     // удаление ненужных сокетов
     void deleteSocketProcessing();
+
+public:
+    Server();
+    ~Server();
+
+    // начало работы
+    void Run();
 
 private:
     // работает ли сервер
@@ -51,12 +51,12 @@ private:
     std::mutex m_mutex;
 
     //// множества сокетов
-    //fd_set m_master;    // множество сокетов
-    //SocketSet m_master_set;    // главное множество
-    //SocketSet m_read_set;      // множество чтения
+    // fd_set m_master;    // множество сокетов
+    // SocketSet m_master_set;    // главное множество
+    // SocketSet m_read_set;      // множество чтения
 
     // максимальный дескриптор сокета
-    //int m_max_socket_desc;
+    // int m_max_socket_desc;
 };
 
 #endif // !SERVER_H

@@ -2,9 +2,14 @@
 
 int main(int argc, char **argv)
 {
-    Server server;
-    //std::thread mainth()
-    server.Run();
-
+    try
+    {
+        Server server;
+        server.Run();
+    }
+    catch (std::exception &e)
+    {
+        std::cout << "execption: " << e.what() << "\n";
+    }
     return 0;
 }

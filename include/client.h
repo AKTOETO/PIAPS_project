@@ -23,6 +23,9 @@ public:
 private:
     // сокет для запроса подключений
     ClientSocket m_socket;
+
+    // указатель на поток выполнения обработки логики сокета
+    std::unique_ptr<std::thread> m_ptr_logic;
 };
 
 #endif // !SERVER_H
