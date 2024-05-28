@@ -42,11 +42,11 @@ void Server::Run()
     // создание потока обработки запросв с сокетов
     std::thread request_process(&Server::requestProcess, this);
 
-    // ожидание завершения работы вывода с консоли
-    input_console.join();
-
     input_connect.detach();
     request_process.detach();
+
+    // ожидание завершения работы вывода с консоли
+    input_console.join();
 }
 
 void Server::addRequest(ServerSocket::Request &req)
@@ -116,17 +116,15 @@ void Server::consoleInput()
 
 void Server::deleteSocketProcessing()
 {
+    std::unique_lock<std::mutex> lock(m_clients_mutex);
     for (size_t i = 0; i < m_clients_sockets.size() && m_is_running; i++)
     {
         // если сокет помечен для удаления, удаляем его
         if (m_clients_sockets[i]->getDeleteStatus())
         {
-            INFOS("УДАЛЕНИЕ\n");
-            m_clients_sockets.erase(m_clients_sockets.begin() + i);
-            INFOS("УДАЛЕНИЕ1\n");
             m_clients_threads[i].detach();
-            INFOS("УДАЛЕНИЕ2\n");
             m_clients_threads.erase(m_clients_threads.begin() + i);
+            m_clients_sockets.erase(m_clients_sockets.begin() + i);
             INFO("Удален %ld сокет\n", i);
             i--;
         }
@@ -164,7 +162,6 @@ void Server::requestProcess()
                 else if (req.m_data == "")
                 {
                     // закрваем сокет
-                    req.m_socket->closes();
                     deleteSocketProcessing();
                 }
                 else

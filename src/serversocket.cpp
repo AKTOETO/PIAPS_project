@@ -117,12 +117,19 @@ void *ServerSocket::processLogic()
         req.m_socket = this;
         free(buf);
 
+        //  если пришел буфер нулевой длины - нужно закрыться
+        if(req.m_data.length() == 0)
+            m_should_be_deleted = 1;
+
         // отправка запроса на сервер
         m_callback(req);
 
-        // TODO ожидание получения ответа через condition varable
-        // Надо добавить метод setData который будет делать broadcast
-        // как только появятся данные от сервера на нем, чтобы передать клиенту
+        // выходим из цикла
+        if(m_should_be_deleted)
+            break;
+
+        // ожидание получения ответа через condition varable
+        // метод setData оповещает этот поток о появлении даннх для отправки клиенту
         {
             std::unique_lock<std::mutex> lock(m_response_mutex);
             m_response_cv.wait(lock);
