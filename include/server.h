@@ -1,8 +1,6 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-// пример клиент-серверной проги https://www.youtube.com/watch?v=09_2hrqAXQ0
-
 #include "inculdes.h"
 
 #include "error.h"
@@ -24,12 +22,21 @@ private:
     // удаление ненужных сокетов
     void deleteSocketProcessing();
 
+    // обработка запросов с сокетов
+    void requestProcess();
+
 public:
     Server();
     ~Server();
 
     // начало работы
     void Run();
+
+    // добавить запрос
+    void addRequest(ServerSocket::Request& req);
+
+    // получить размер очереди
+    size_t getReqQuSize() const;
 
 private:
     // работает ли сервер
@@ -48,15 +55,16 @@ private:
     std::vector<ServerSocket::pSSocket> m_clients_sockets;
 
     // блокировка доступа к спсикам потоков и клиентов
-    std::mutex m_mutex;
+    std::mutex m_clients_mutex;
 
-    //// множества сокетов
-    // fd_set m_master;    // множество сокетов
-    // SocketSet m_master_set;    // главное множество
-    // SocketSet m_read_set;      // множество чтения
+    // очередь запросов от сокетов
+    std::queue<ServerSocket::Request> m_requests;
 
-    // максимальный дескриптор сокета
-    // int m_max_socket_desc;
+    // блокировка доступа к очереди запросов с разных потоков
+    std::mutex m_request_mutex;
+
+    // для пробуждения процесса обработки запросов, когда они появляются
+    std::condition_variable m_request_cv;
 };
 
 #endif // !SERVER_H

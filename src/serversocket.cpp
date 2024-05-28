@@ -11,7 +11,8 @@ ServerSocket::ServerSocket(int descriptor)
 }
 
 ServerSocket::ServerSocket()
-    : Socket()
+    : Socket(), m_callback([](Request &)
+                           { INFOS("Базовый callback\n"); })
 {
 }
 
@@ -54,8 +55,6 @@ void ServerSocket::binds(int port, const char *ip)
     // Записываем семейство адресов, порт сервера, адрес сервера.
     addr.sin_family = m_domain;
     addr.sin_port = htons(port);
-    // addr.sin_addr.s_addr = htonl(ip);
-    // inet_pton(AF_INET, ip, &addr.sin_addr);
     inetPton(ip, &addr.sin_addr);
 
     // вызов уже существующей функции binds
@@ -106,24 +105,48 @@ void *ServerSocket::processLogic()
     // пока сокет открыт, читаем буфер
     do
     {
-        char *buf;
+        char *buf = NULL;
         int len = 0;
 
         // читаем большой буфер данных
         status = recvalls(&buf, len);
-        buf[len - 1] = 0;
 
-        // печатаем его в консоль
-        printf("recieved> [%s]\n", buf);
+        // создание запроса
+        Request req;
+        req.m_data.assign(buf, status);
+        req.m_socket = this;
+        free(buf);
 
-        // отправляем ответ
-        //scanf("%s", buf);
-        std::cin>>buf;
-        sendall(buf, strlen(buf));
+        // отправка запроса на сервер
+        m_callback(req);
 
-        delete[] buf;
-    
+        // TODO ожидание получения ответа через condition varable
+        // Надо добавить метод setData который будет делать broadcast
+        // как только появятся данные от сервера на нем, чтобы передать клиенту
+        {
+            std::unique_lock<std::mutex> lock(m_response_mutex);
+            m_response_cv.wait(lock);
+            // отправляем ответ
+            sendall(m_response.c_str(), m_response.length());
+        }
+
     } while (status != 0);
 
     return nullptr;
+}
+
+void ServerSocket::setCallback(std::function<void(Request &)> &&funct)
+{
+    m_callback = std::move(funct);
+}
+
+void ServerSocket::setData(const std::string &str)
+{
+    // TODO сделать установку данных, полученныз от сервера
+    {
+        std::lock_guard<std::mutex> lock(m_response_mutex);
+        INFOS("Установка данных для отправки клиенту\n");
+        m_response = str;
+        m_response_cv.notify_one();
+    }
 }

@@ -11,8 +11,6 @@ protected:
     void inetPton(const char *src, void *dst);
 
 public:
-    // // уникальный указатель на сокет
-    // using pSocket = std::shared_ptr<Socket>;
 
     // создание сокета
     Socket(int domain, int type, int protocol);
@@ -23,23 +21,6 @@ public:
 
     // удаление сокета
     virtual ~Socket();
-
-    // // привязка сокета к адресу
-    // void binds(const sockaddr *addr, socklen_t addrlen);
-    // void binds(int port, uint32_t ip = INADDR_ANY);
-    // void binds(int port, const char *ip);
-
-    // // задание значения очереди подключаемых клиентов
-    // void listens(int backlog);
-
-    // // принимаем подключение по прослушивающему сокету
-    // pSocket accepts(sockaddr *addr, socklen_t *addrlen);
-    // pSocket accepts();
-
-    // // отправляем запрос на подключение
-    // void connects(const sockaddr *addr, socklen_t addrlen);
-    // void connects(uint32_t ip, int port);
-    // void connects(const char *ip, int port);
 
     // получение дескриптора сокета
     int getDescr() const;
@@ -59,14 +40,11 @@ public:
     /// @param buf буфер данных
     /// @param buf_len его длина 
     /// @param flag флаги для recv
-    /// @return 0 - сокет закрылся, 1 - иначе
+    /// @return 0 - сокет закрылся, иначе число считанных байт
     int recvalls(char **buf, int &buf_len, int flag = 0);
 
     // вызов функции обработки соединения сокетом
     void *operator()();
-
-    // // установка функции обработки соединения
-    // void setProcessFunct(std::function<void *()>);
 
     // функция обработки логики
     virtual void *processLogic();

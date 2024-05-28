@@ -37,12 +37,7 @@
 using namespace std::chrono_literals;
 #include <mutex>
 #include <atomic>
-
-// #include "utils.h"
-// #include "constants.h"
-
-// #include "stb_image.h"
-// #include "stb_image_write.h"
-// #include "stb_image_resize2.h"
+#include <queue>
+#include <condition_variable>
 
 #endif // !INCLUDES_H

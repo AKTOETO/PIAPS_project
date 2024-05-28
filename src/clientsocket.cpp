@@ -76,10 +76,11 @@ void *ClientSocket::processLogic()
         // читаем ответ сервера
         char *buf = NULL;
         int len;
-        recvalls(&buf, len);
-        buf[len - 1] = 0;
+        len = recvalls(&buf, len);
 
-        printf("server> [%s]\n", buf);
+        //printf("server> [");
+        write(1, buf, len);
+        //printf("]\n");
 
         free(buf);
     }

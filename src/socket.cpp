@@ -17,7 +17,6 @@ void Socket::inetPton(const char *src, void *dst)
     }
 }
 
-
 Socket::Socket(int domain, int type, int protocol)
     : Socket()
 {
@@ -44,7 +43,7 @@ Socket::Socket(int descriptor)
 }
 
 Socket::Socket()
-    : m_socket(-1), m_domain(-1), m_should_be_deleted(0) 
+    : m_socket(-1), m_domain(-1), m_should_be_deleted(0)
 {
     INFOS("Конструктор сокета\n");
 }
@@ -62,6 +61,13 @@ void Socket::creates(int domain, int type, int protocol)
     {
         ERRORS("Не получилось создать сокет\n");
         throw std::runtime_error("socket error");
+    }
+
+    const int enable = 1;
+    if(setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+    {
+        ERRORS("Ошибка установки флга переиспользования адресса\n");
+        throw std::runtime_error("so_reuseaddr error");
     }
 }
 
@@ -92,6 +98,7 @@ int Socket::sends(const char *buf, int buf_len, int flag)
 
 int Socket::sendall(const char *buf, int buf_len, int flag)
 {
+    INFO("Отправка %d байт\n", buf_len);
     // количество отправленных байт
     int total = 0;
     int n;
@@ -119,12 +126,6 @@ int Socket::recvs(char *buf, int buf_len, int flag)
 
 int Socket::recvalls(char **buf, int &buf_len, int flag)
 {
-    // очищаем память
-    if (buf != NULL && *buf != NULL)
-    {
-       delete[] *buf;
-    }
-
     // длина буфера одного чтения
     const int len = 1024;
 
@@ -136,6 +137,8 @@ int Socket::recvalls(char **buf, int &buf_len, int flag)
 
     // количество считанных байт за одно чтение
     int nread = 0;
+
+    (*buf) = NULL;
 
     do
     {
@@ -152,7 +155,6 @@ int Socket::recvalls(char **buf, int &buf_len, int flag)
                 throw std::runtime_error("realloc error");
             }
         }
-
 
         // читаем сообщение
         nread = recvs((*buf) + total, len);
@@ -176,7 +178,7 @@ int Socket::recvalls(char **buf, int &buf_len, int flag)
             INFO("Получен блок данных размером %d\n", nread);
         }
 
-    } while (nread > 0);
+    } while (nread > 0 && nread == len);
 
     return total;
 }
