@@ -75,6 +75,15 @@ void Server::connectionProcessing()
     {
         // вызываем accept, если нет соединений, поток блокируется
         auto new_socket = m_listen_socket->accepts();
+
+        // если получили nullptr, значит слушающий сокет закрылся
+        if (new_socket == nullptr)
+        {
+            m_is_running = 0;
+            break;
+        }
+
+        // установка callback функции для сокета
         new_socket->setCallback(std::bind(&Server::addRequest, this, std::placeholders::_1));
 
         // критическая секция доступа к списку сокетов и потоков

@@ -76,7 +76,16 @@ void ServerSocket::listens(int backlog)
 ServerSocket::pSSocket ServerSocket::accepts(sockaddr *addr, socklen_t *addrlen)
 {
     INFOS("Установка соединения\n");
-    pSSocket new_socket = std::make_unique<ServerSocket>(accept(m_socket, addr, addrlen));
+
+    // проверка возможносит принятия соединения
+    int fd = accept(m_socket, addr, addrlen);
+    if(fd == -1)
+    {
+        INFOS("Невозможно принять соединение (возможно сокет закрыт)\n");
+        return nullptr;
+    }
+
+    pSSocket new_socket = std::make_unique<ServerSocket>();
 
     if (new_socket->m_socket == -1)
     {
