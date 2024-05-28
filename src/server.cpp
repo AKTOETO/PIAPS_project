@@ -157,25 +157,25 @@ void Server::requestProcess()
             auto req = m_requests.front();
             m_requests.pop();
 
-            // TODO тут происходит обработка запроса
-            // ПО-хорошему нужно сделать отдельный класс-обработчик таких запросов,
-            // чтобы он был доступен как на сервере, так и на клиенете,
-            // чтобы была возможность формировать одни и те же запросы
-            std::string response("unknown request");
+            // если пришел пустой запрос, значит сокет закрыдся
+            if(req.m_data == "")
             {
-                if (req.m_data == "event:auth")
+                deleteSocketProcessing();
+            }
+            // иначе, обрабатываем запрос с сокета
+            else
+            {
+                std::string response("unknown request");
                 {
-                    response = "welcome"; // отправляем результат обработки обратно сокету
-                    req.m_socket->setData(response);
-                }
-                else if (req.m_data == "")
-                {
-                    // закрваем сокет
-                    deleteSocketProcessing();
-                }
-                else
-                {
-                    req.m_socket->setData(response);
+                    if (req.m_data == "event:auth")
+                    {
+                        response = "welcome"; // отправляем результат обработки обратно сокету
+                        req.m_socket->setData(response);
+                    }
+                    else
+                    {
+                        req.m_socket->setData(response);
+                    }
                 }
             }
         }

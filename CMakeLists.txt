@@ -117,6 +117,17 @@ target_include_directories(socket PUBLIC include/)
 set(LIBS ${LIBS} socket)
 
 ####################################
+# requests
+####################################
+
+add_library(requests STATIC
+src/requestmanager.cpp
+include/requestmanager.h
+)
+target_include_directories(requests PUBLIC include/)
+set(LIBS ${LIBS} requests)
+
+####################################
 #        SETTING UP IMGUI
 ####################################
 
@@ -179,6 +190,13 @@ set(LIBS ${LIBS} SDL3::SDL3)
 set(SKIP_BUILD_TEST True)
 add_subdirectory(deps/PQXX build-pqxx)
 set(LIBS ${LIBS} pqxx)
+
+####################################
+# JSON
+####################################
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(deps/NLOHMANN)
+set(LIBS ${LIBS} nlohmann_json::nlohmann_json)
 
 ####################################
 #      INCLUDING DIRECTORIES
