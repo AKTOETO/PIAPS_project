@@ -85,7 +85,7 @@ ServerSocket::pSSocket ServerSocket::accepts(sockaddr *addr, socklen_t *addrlen)
         return nullptr;
     }
 
-    pSSocket new_socket = std::make_unique<ServerSocket>();
+    pSSocket new_socket = std::make_unique<ServerSocket>(fd);
 
     if (new_socket->m_socket == -1)
     {
