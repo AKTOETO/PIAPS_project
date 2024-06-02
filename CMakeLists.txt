@@ -117,17 +117,6 @@ target_include_directories(socket PUBLIC include/)
 set(LIBS ${LIBS} socket)
 
 ####################################
-# requests
-####################################
-
-add_library(requests STATIC
-src/requestmanager.cpp
-include/requestmanager.h
-)
-target_include_directories(requests PUBLIC include/)
-set(LIBS ${LIBS} requests)
-
-####################################
 #        SETTING UP IMGUI
 ####################################
 
@@ -197,6 +186,20 @@ set(LIBS ${LIBS} pqxx)
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 add_subdirectory(deps/NLOHMANN)
 set(LIBS ${LIBS} nlohmann_json::nlohmann_json)
+
+####################################
+# requests
+####################################
+
+add_library(requests STATIC
+    src/requestmanager.cpp
+    src/request.cpp
+    include/requestmanager.h
+    include/requests.h
+)
+target_include_directories(requests PUBLIC include/)
+target_link_libraries(requests nlohmann_json::nlohmann_json)
+set(LIBS ${LIBS} requests)
 
 ####################################
 #      INCLUDING DIRECTORIES
