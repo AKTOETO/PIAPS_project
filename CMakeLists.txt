@@ -18,202 +18,46 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 ####################################
-#      INCLUDE AND SORCE FILES
-#       FOR CLIENT AND SERVER
+# INCLUDE LIBS
 ####################################
-
-# client sources
-set(CLIENT_SOURCES
-    src/client.cpp
-    src/clientmain.cpp
-)
-
-# client includes
-set(CLIENT_INCLUDE
-    include/client.h
-)
-
-# server sources
-set(SERVER_SOURCES
-    src/server.cpp
-    src/servermain.cpp
-)
-
-# server includes
-set(SERVER_INCLUDE
-    include/server.h
-)
+add_subdirectory(deps)
 
 ####################################
-
-# source files
-# file(GLOB_RECURSE src CONFIGURE_DEPENDS ${INCLUDE}/*.h ${SOURCES}/*.cpp)
-
-####################################
-#      GENERAL INCLUDE FOLDERS
+# INCLUDE HDRS&SRCS
 ####################################
 
-# include folder
-set(GEN_INCLUDE_FOLDERS 
-    ${CMAKE_SOURCE_DIR}/include/
-    # opengl
-    ${OPENGL_INCLUDE_DIR}/GL/
-
-    # Make SDL3 available to Imgui
-    ${CMAKE_SOURCE_DIR}/deps/SDL3/include/
-
-    # imgui/backends/ contains the SDL implementation
-    ${imgui_src}/
-    ${imgui_src}/backends
-
-    # postgresql
-    ${CMAKE_SOURCE_DIR}/deps/PQXX/include/
-)
+add_subdirectory(include)
+add_subdirectory(src)
 
 ####################################
 #           EXECUTABLES
 ####################################
 
 # client
-add_executable(client ${IMGUI_SOURCES} ${CLIENT_INCLUDE} ${CLIENT_SOURCES})
+add_executable(client ${GENERAL_SOURCE} ${GENERAL_INCLUDE} ${CLIENT_INCLUDE} ${CLIENT_SOURCE})
 target_compile_options(client PRIVATE -W -Wall -fsanitize=address -g)
 target_link_options(client PRIVATE -fsanitize=address)
 
 # server
-add_executable(server ${IMGUI_SOURCES} ${SERVER_INCLUDE} ${SERVER_SOURCES})
+add_executable(server ${GENERAL_SOURCE} ${GENERAL_INCLUDE} ${SERVER_INCLUDE} ${SERVER_SOURCE})
 target_compile_options(server PRIVATE -W -Wall -fsanitize=address -g)
 target_link_options(server PRIVATE -fsanitize=address)
-
-####################################
-#           LINK LIBS
-####################################
-
-# All libs to be linked
-set(LIBS)
-
-####################################
-# error
-####################################
-
-add_library(error STATIC src/error.cpp include/error.h)
-target_include_directories(error PUBLIC 
-    include/ 
-)
-set(LIBS ${LIBS} error)
-
-####################################
-# socket
-####################################
-
-add_library(socket STATIC 
-    src/socket.cpp
-    src/clientsocket.cpp
-    src/serversocket.cpp
-    include/socket.h
-    include/clientsocket.h
-    include/serversocket.h
-)
-target_include_directories(socket PUBLIC include/)
-set(LIBS ${LIBS} socket)
-
-####################################
-#        SETTING UP IMGUI
-####################################
-
-# imgui folder
-set(imgui_src ${CMAKE_SOURCE_DIR}/deps/IMGUI)
-
-set(IMGUI_SOURCES
-    # main IMGUI files
-    ${imgui_src}/imconfig.h
-    ${imgui_src}/imgui.cpp
-    ${imgui_src}/imgui.h
-    ${imgui_src}/imgui_demo.cpp
-    ${imgui_src}/imgui_draw.cpp
-    ${imgui_src}/imgui_internal.h
-    ${imgui_src}/imgui_widgets.cpp
-    ${imgui_src}/imstb_rectpack.h
-    ${imgui_src}/imstb_textedit.h
-    ${imgui_src}/imstb_truetype.h
-    ${imgui_src}/imgui_tables.cpp
-
-    # SDL + OPENGL 
-    ${imgui_src}/backends/imgui_impl_sdl3.cpp
-    ${imgui_src}/backends/imgui_impl_sdlrenderer3.cpp
-    ${imgui_src}/backends/imgui_impl_opengl3.cpp
-    ${imgui_src}/backends/imgui_impl_opengl3.h
-)
-
-add_library(imgui STATIC ${IMGUI_SOURCES})
-target_include_directories(imgui PUBLIC 
-    ${imgui_src}
-    ${CMAKE_SOURCE_DIR}/deps/SDL3/include/
-)
-set(LIBS ${LIBS} imgui)
-####################################
-# OpenGL
-####################################
-
-set(OpenGL_GL_PREFERENCE GLVND)
-find_package(OpenGL REQUIRED)
-message(STATUS "OPENGL_INCLUDE_DIR:= ${OPENGL_INCLUDE_DIR}/GL")
-message(STATUS "OPENGL_LIBRARY:= ${OPENGL_LIBRARY}")
-message(STATUS "OPENGL_LIBRARIES:= ${OPENGL_LIBRARIES}")
-
-set(LIBS ${LIBS} ${OPENGL_LIBRARIES})
-
-####################################
-# SDL
-####################################
-
-set(SDL_SHARED FALSE CACHE BOOL "Build a SDL shared library")
-set(SDL_STATIC TRUE CACHE BOOL "Build a SDL static library")
-
-add_subdirectory(deps/SDL3 EXCLUDE_FROM_ALL)
-
-set(LIBS ${LIBS} SDL3::SDL3)
-
-####################################
-# PQXX
-####################################
-set(SKIP_BUILD_TEST True)
-add_subdirectory(deps/PQXX build-pqxx)
-set(LIBS ${LIBS} pqxx)
-
-####################################
-# JSON
-####################################
-set(JSON_BuildTests OFF CACHE INTERNAL "")
-add_subdirectory(deps/NLOHMANN)
-set(LIBS ${LIBS} nlohmann_json::nlohmann_json)
-
-####################################
-# requests
-####################################
-
-add_library(requests STATIC
-    src/requestmanager.cpp
-    src/request.cpp
-    include/requestmanager.h
-    include/requests.h
-)
-target_include_directories(requests PUBLIC include/)
-target_link_libraries(requests nlohmann_json::nlohmann_json)
-set(LIBS ${LIBS} requests)
 
 ####################################
 #      INCLUDING DIRECTORIES
 ####################################
 
-target_include_directories(client PUBLIC ${GEN_INCLUDE_FOLDERS})
-target_include_directories(server PUBLIC ${GEN_INCLUDE_FOLDERS})
+message(jopa ${ALL_INCLUDES})
+
+target_include_directories(client PUBLIC ${ALL_INCLUDES} include)
+target_include_directories(server PUBLIC ${ALL_INCLUDES} include)
 
 ####################################
 #      LINK ALL LIBS TO EXECS
 ####################################
 
-target_link_libraries(client ${LIBS})
-target_link_libraries(server ${LIBS})
+target_link_libraries(client ${ALL_LIBS})
+target_link_libraries(server ${ALL_LIBS})
 
 ####################################
 #    COPYING ASSET FOLDER TO BIN

@@ -165,18 +165,19 @@ void Server::requestProcess()
             // иначе, обрабатываем запрос с сокета
             else
             {
-                std::string response("unknown request");
-                {
-                    if (req.m_data == "event:auth")
-                    {
-                        response = "welcome"; // отправляем результат обработки обратно сокету
-                        req.m_socket->setData(response);
-                    }
-                    else
-                    {
-                        req.m_socket->setData(response);
-                    }
-                }
+                // std::string response("unknown request");
+                // {
+                //     if (req.m_data == "event:auth")
+                //     {
+                //         response = "welcome"; // отправляем результат обработки обратно сокету
+                //         req.m_socket->setData(response);
+                //     }
+                //     else
+                //     {
+                //         req.m_socket->setData(response);
+                //     }
+                // }
+                req.m_socket->setData(RequestManager::getResponse(req.m_data));               
             }
         }
     }

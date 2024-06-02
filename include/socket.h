@@ -1,7 +1,7 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
-#include "inculdes.h"
+#include "includes.h"
 #include "error.h"
 
 class Socket

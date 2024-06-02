@@ -65,11 +65,31 @@ void ClientSocket::connects(const char *ip, int port)
 
 void *ClientSocket::processLogic()
 {
+
+
+    
     INFOS("Обработка сокета со стороны клиента\n");
 
     std::string str;
     while (std::getline(std::cin, str) && str != "end")
     {
+        // создание события авторизации
+        AuthEvent ev{.m_name = str, .m_password = "2134"};
+
+        // создание строки из объекта
+        auto js = Request::getJsonFromObj<AuthEvent>(ev);
+        // try
+        // {
+        //     std::cout<<js.at("m_tbhjkype")<<"\n\n";
+            
+        // }
+        // catch(const std::exception& e)
+        // {
+        //     std::cerr << e.what() << '\n';
+        // }
+        
+        str = Request::getStrFromJson(js);   
+
         // отправляем сообщение с консоли на сервер
         sendall(str.c_str(), str.length());
 
@@ -78,9 +98,9 @@ void *ClientSocket::processLogic()
         int len;
         len = recvalls(&buf, len);
 
-        //printf("server> [");
+        // printf("server> [");
         write(1, buf, len);
-        //printf("]\n");
+        // printf("]\n");
 
         free(buf);
     }

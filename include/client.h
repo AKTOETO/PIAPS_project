@@ -1,12 +1,11 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-// пример клиент-серверной проги https://www.youtube.com/watch?v=09_2hrqAXQ0
-
-#include "inculdes.h"
+#include "includes.h"
 
 #include "error.h"
 #include "clientsocket.h"
+#include "requestmanager.h"
 
 // класс сервера
 class Client

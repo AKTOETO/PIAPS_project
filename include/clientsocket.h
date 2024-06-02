@@ -1,7 +1,8 @@
-#ifndef SERVERSOCKET_H
-#define SERVERSOCKET_H
+#ifndef CLIENTSOCKET_H
+#define CLIENTSOCKET_H
 
 #include "socket.h"
+#include "requestmanager.h"
 
 class ClientSocket : public Socket
 {
@@ -25,4 +26,4 @@ public:
     virtual void *processLogic() override;
 };
 
-#endif // !SERVERSOCKET_H
+#endif // !CLIENTSOCKET_H

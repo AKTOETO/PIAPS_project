@@ -2,6 +2,8 @@
 
 int main(int argc, char **argv)
 {
+    nlohmann::json js;
+
     try
     {
         Server server;

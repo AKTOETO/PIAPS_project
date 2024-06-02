@@ -157,7 +157,7 @@ int Socket::recvalls(char **buf, int &buf_len, int flag)
         }
 
         // читаем сообщение
-        nread = recvs((*buf) + total, len);
+        nread = recvs((*buf) + total, len, flag);
 
         // если получили 0, значит сокет закрылся и нужно закрыть сокет
         if (nread == 0)

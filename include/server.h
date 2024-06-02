@@ -1,10 +1,11 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include "inculdes.h"
+#include "includes.h"
 
 #include "error.h"
 #include "serversocket.h"
+#include "requestmanager.h"
 
 // класс сервера
 class Server
