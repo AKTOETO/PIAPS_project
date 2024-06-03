@@ -7,9 +7,7 @@
 // 2 - обработка сигналов с консоли (GUI) и постановка запрососв в очередь на обработку
 // 3 - обработка запросов из очереди
 
-#include "includes.h"
-
-#include "error.h"
+#include "requestsocket.h"
 #include "requestmanager.h"
 
 class Background
@@ -18,6 +16,9 @@ public:
 
     // запуск работы бэкграунда
     virtual void Run();
+
+    // добавить запрос
+    void addRequest(RequestSocket::Request& req);
 
     Background();
     virtual ~Background();
@@ -38,6 +39,15 @@ protected:
 
     // список потоков 
     std::vector<std::thread> m_threads;
+
+    // блокировка доступа к очереди запросов с разных потоков
+    std::mutex m_request_mutex;
+
+    // для пробуждения процесса обработки запросов, когда они появляются
+    std::condition_variable m_request_cv;
+
+    // очередь запросов от сокетов
+    std::queue<RequestSocket::Request> m_requests;
 };
 
 #endif // !BACKGROUND_H

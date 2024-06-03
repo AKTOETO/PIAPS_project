@@ -28,8 +28,8 @@ public:
     Server();
     ~Server();
 
-    // добавить запрос
-    void addRequest(ServerSocket::Request& req);
+    // // добавить запрос
+    // void addRequest(ServerSocket::Request& req);
 
     // получить размер очереди
     size_t getReqQuSize() const;

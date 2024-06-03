@@ -1,17 +1,17 @@
 #include "clientsocket.h"
 
 ClientSocket::ClientSocket(int domain, int type, int protocol)
-    : Socket(domain, type, protocol)
+    : RequestSocket(domain, type, protocol)
 {
 }
 
 ClientSocket::ClientSocket(int descriptor)
-    : Socket(descriptor)
+    : RequestSocket(descriptor)
 {
 }
 
 ClientSocket::ClientSocket()
-    : Socket()
+    : RequestSocket()
 {
 }
 
@@ -65,49 +65,55 @@ void ClientSocket::connects(const char *ip, int port)
 
 void *ClientSocket::processLogic()
 {
-    
-    INFOS("Обработка сокета со стороны клиента\n");
 
-    std::string str;
-    while (std::getline(std::cin, str) && str != "end")
+    INFOS("Обработка сокета со стороны клиента\n");
+    int len = 0;
+    do
     {
         // 1. ждем создания события от клиента (метод setData тут нужен (как у сервера))
-        // 2. отправляем серверу событие
-        // 3. ждем ответ от сервера
-        // 4. отправляем ответ на обработчик (чере вызов callback функции, как у сервера)
-        // 5. повторям все с первого шага
+        // {
+        //     std::unique_lock<std::mutex> lock(m_response_mutex);
+        //     m_response_cv.wait(lock);
+        //     // 2. отправляем серверу событие
+        //     sendall(m_response.c_str(), m_response.length());
+        // }
+        waitingSend();
 
         // создание события авторизации
-        AuthEvent ev{.m_name = str, .m_password = "2134"};
+        // Events::AuthEvent ev{.m_name = str, .m_password = "2134"};
 
         // создание строки из объекта
-        auto js = Request::getJsonFromObj<AuthEvent>(ev);
+        // auto js = Events::getJsonFromObj<Events::AuthEvent>(ev);
         // try
         // {
         //     std::cout<<js.at("m_tbhjkype")<<"\n\n";
-            
+
         // }
         // catch(const std::exception& e)
         // {
         //     std::cerr << e.what() << '\n';
         // }
-        
-        str = Request::getStrFromJson(js);   
+
+        // str = Events::getStrFromJson(js);
 
         // отправляем сообщение с консоли на сервер
-        sendall(str.c_str(), str.length());
+        // sendall(str.c_str(), str.length());
 
+        // 3. ждем ответ от сервера
         // читаем ответ сервера
         char *buf = NULL;
-        int len;
         len = recvalls(&buf, len);
 
-        // printf("server> [");
-        write(1, buf, len);
-        // printf("]\n");
-
+        // 4. формируем запрос на клиентскую часть
+        Request req;
+        req.m_data.assign(buf, len);
+        req.m_socket = this;
         free(buf);
-    }
+
+        // 5. отправляем ответ на обработчик (чере вызов callback функции, как у сервера)
+        m_callback(req);
+
+    } while (len != 0 && !m_should_be_deleted);
 
     return nullptr;
 }

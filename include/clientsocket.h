@@ -1,10 +1,10 @@
 #ifndef CLIENTSOCKET_H
 #define CLIENTSOCKET_H
 
-#include "socket.h"
+#include "requestsocket.h"
 #include "requestmanager.h"
 
-class ClientSocket : public Socket
+class ClientSocket : public RequestSocket
 {
 public:
     // уникальный указатель на сокет

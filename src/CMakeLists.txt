@@ -6,8 +6,9 @@ message(STATUS "Setting source variables")
 # General Files
 set(GENERAL_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/socket.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/request.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/events.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/requestmanager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/requestsocket.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/error.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/background.cpp
 

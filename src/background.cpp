@@ -12,6 +12,15 @@ void Background::Run()
     m_threads[0].join();
 }
 
+void Background::addRequest(RequestSocket::Request &req)
+{
+    std::lock_guard<std::mutex> lock(m_request_mutex);
+    m_requests.push(req);
+    INFOS("Запрос добавлен\n");
+    // сообщаем потоку обработки запросов, что есть необработанные запросы
+    m_request_cv.notify_one();
+}
+
 Background::Background()
     : m_is_running(true)
 {

@@ -1,10 +1,8 @@
 #ifndef REQUESTMANAGER_H
 #define REQUESTMANAGER_H
 
-#include "requests.h"
+#include "events.h"
 #include "error.h"
-
-using namespace Request;
 
 // управляющий запросами
 class RequestManager

@@ -39,5 +39,6 @@ using namespace std::chrono_literals;
 #include <atomic>
 #include <queue>
 #include <condition_variable>
+#include <variant>
 
 #endif // !INCLUDES_H

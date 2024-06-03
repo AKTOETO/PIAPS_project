@@ -1,18 +1,17 @@
 #include "serversocket.h"
 
 ServerSocket::ServerSocket(int domain, int type, int protocol)
-    : Socket(domain, type, protocol)
+    : RequestSocket(domain, type, protocol)
 {
 }
 
 ServerSocket::ServerSocket(int descriptor)
-    : Socket(descriptor)
+    : RequestSocket(descriptor)
 {
 }
 
 ServerSocket::ServerSocket()
-    : Socket(), m_callback([](Request &)
-                           { INFOS("Базовый callback\n"); })
+    : RequestSocket()
 {
 }
 
@@ -138,30 +137,15 @@ void *ServerSocket::processLogic()
 
         // ожидание получения ответа через condition varable
         // метод setData оповещает этот поток о появлении даннх для отправки клиенту
-        {
-            std::unique_lock<std::mutex> lock(m_response_mutex);
-            m_response_cv.wait(lock);
-            // отправляем ответ
-            sendall(m_response.c_str(), m_response.length());
-        }
+        // {
+        //     std::unique_lock<std::mutex> lock(m_response_mutex);
+        //     m_response_cv.wait(lock);
+        //     // отправляем ответ
+        //     sendall(m_response.c_str(), m_response.length());
+        // }
+        waitingSend();
 
     } while (status != 0);
 
     return nullptr;
-}
-
-void ServerSocket::setCallback(std::function<void(Request &)> &&funct)
-{
-    m_callback = std::move(funct);
-}
-
-void ServerSocket::setData(const std::string &str)
-{
-    // TODO сделать установку данных, полученныз от сервера
-    {
-        std::lock_guard<std::mutex> lock(m_response_mutex);
-        INFOS("Установка данных для отправки клиенту\n");
-        m_response = str;
-        m_response_cv.notify_one();
-    }
 }

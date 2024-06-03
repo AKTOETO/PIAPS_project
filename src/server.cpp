@@ -49,17 +49,17 @@ Server::~Server()
 //     input_console.join();
 // }
 
-void Server::addRequest(ServerSocket::Request &req)
-{
-    // добавляем запрос от сокета в очерель на обработку
-    {
-        std::lock_guard<std::mutex> lock(m_request_mutex);
-        m_requests.push(req);
-        INFOS("Запрос добавлен\n");
-        // сообщаем потоку обработки запросов, что есть необработанные запросы
-        m_request_cv.notify_one();
-    }
-}
+// void Server::addRequest(ServerSocket::Request &req)
+// {
+//     // добавляем запрос от сокета в очерель на обработку
+//     {
+//         std::lock_guard<std::mutex> lock(m_request_mutex);
+//         m_requests.push(req);
+//         INFOS("Запрос добавлен\n");
+//         // сообщаем потоку обработки запросов, что есть необработанные запросы
+//         m_request_cv.notify_one();
+//     }
+// }
 
 size_t Server::getReqQuSize() const
 {

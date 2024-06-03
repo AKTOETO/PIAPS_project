@@ -4,7 +4,7 @@ std::string RequestManager::authProc(const nlohmann::json &j)
 {
     // // получение структуры авторизации
     // auto auth = j.get<AuthEvent>();
-    AuthEvent auth = getObjFromJson<AuthEvent>(j);
+    Events::AuthEvent auth = Events::getObjFromJson<Events::AuthEvent>(j);
 
     // TODO по-хорошему, тут должно быть образение к бд
     // и проверка на ней существования такого пользователя
@@ -18,8 +18,8 @@ std::string RequestManager::authProc(const nlohmann::json &j)
     };
 
     // формирование ответа
-    ReplyEvent rep{
-        .m_status = (authed() ? ExecStatus::DONE : ExecStatus::ERROR),
+    Events::ReplyEvent rep{
+        .m_status = (authed() ? Events::ExecStatus::DONE : Events::ExecStatus::ERROR),
         .m_data = ""};
 
     // создание json строки
@@ -31,10 +31,10 @@ std::string RequestManager::authProc(const nlohmann::json &j)
 std::string RequestManager::getResponse(const std::string &str)
 {
     // получение json файла из строки
-    nlohmann::json j = Request::getJsonFromStr(str);
+    nlohmann::json j = Events::getJsonFromStr(str);
 
     // если не было ошибки обработки пакета
-    if (isItError(str))
+    if (Events::isItError(str))
     {
         ERROR("Некорректная обработка json: {%s}\n", j.dump().c_str());
         return JSON_ERROR("Некорректная обработка json");
