@@ -10,6 +10,7 @@ set(GENERAL_INCLUDE
     ${CMAKE_CURRENT_SOURCE_DIR}/requestmanager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/error.h
     ${CMAKE_CURRENT_SOURCE_DIR}/includes.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/background.h
 
     CACHE INTERNAL "general includes"
 )

@@ -47,8 +47,6 @@ target_link_options(server PRIVATE -fsanitize=address)
 #      INCLUDING DIRECTORIES
 ####################################
 
-message(jopa ${ALL_INCLUDES})
-
 target_include_directories(client PUBLIC ${ALL_INCLUDES} include)
 target_include_directories(server PUBLIC ${ALL_INCLUDES} include)
 

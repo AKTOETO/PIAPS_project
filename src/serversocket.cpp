@@ -86,7 +86,6 @@ ServerSocket::pSSocket ServerSocket::accepts(sockaddr *addr, socklen_t *addrlen)
     }
 
     pSSocket new_socket = std::make_unique<ServerSocket>(fd);
-
     if (new_socket->m_socket == -1)
     {
         ERRORS("Не получилось принять подключение\n");

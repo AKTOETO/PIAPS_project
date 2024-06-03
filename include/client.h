@@ -1,14 +1,13 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#include "includes.h"
-
-#include "error.h"
+#include "background.h"
 #include "clientsocket.h"
 #include "requestmanager.h"
 
+
 // класс сервера
-class Client
+class Client : public Background
 {
 private:
     // запуск сервера
@@ -17,7 +16,15 @@ private:
 public:
     Client();
 
-    void Run();
+protected:
+    // обработка ввода с консоли
+    virtual void consoleInput() override;
+
+    // обработка логики бэкграунда
+    virtual void logicProcessing() override;
+
+    // обработка логики сокетов
+    virtual void socketProcessing() override;
 
 private:
     // сокет для запроса подключений

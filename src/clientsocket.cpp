@@ -65,14 +65,18 @@ void ClientSocket::connects(const char *ip, int port)
 
 void *ClientSocket::processLogic()
 {
-
-
     
     INFOS("Обработка сокета со стороны клиента\n");
 
     std::string str;
     while (std::getline(std::cin, str) && str != "end")
     {
+        // 1. ждем создания события от клиента (метод setData тут нужен (как у сервера))
+        // 2. отправляем серверу событие
+        // 3. ждем ответ от сервера
+        // 4. отправляем ответ на обработчик (чере вызов callback функции, как у сервера)
+        // 5. повторям все с первого шага
+
         // создание события авторизации
         AuthEvent ev{.m_name = str, .m_password = "2134"};
 

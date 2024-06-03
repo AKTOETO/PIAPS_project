@@ -15,7 +15,7 @@ void Server::initServer()
 }
 
 Server::Server()
-    : m_is_running(true), m_server_addres({0, 0, 0, 0}) //, m_master_set(), m_read_set(), m_max_socket_desc(0)
+    : Background(), m_server_addres({0, 0, 0, 0}) //, m_master_set(), m_read_set(), m_max_socket_desc(0)
 {
     initServer();
 }
@@ -29,25 +29,25 @@ Server::~Server()
     }
 }
 
-void Server::Run()
-{
-    INFOS("Запуск работы сервера\n");
+// void Server::Run()
+// {
+//     INFOS("Запуск работы сервера\n");
 
-    // создание потока обработки ввода с консоли
-    std::thread input_console(&Server::consoleInput, this);
+//     // создание потока обработки ввода с консоли
+//     std::thread input_console(&Server::consoleInput, this);
 
-    // создание потока для обработки входящих соединений
-    std::thread input_connect(&Server::connectionProcessing, this);
+//     // создание потока для обработки входящих соединений
+//     std::thread input_connect(&Server::connectionProcessing, this);
 
-    // создание потока обработки запросв с сокетов
-    std::thread request_process(&Server::requestProcess, this);
+//     // создание потока обработки запросв с сокетов
+//     std::thread request_process(&Server::requestProcess, this);
 
-    input_connect.detach();
-    request_process.detach();
+//     input_connect.detach();
+//     request_process.detach();
 
-    // ожидание завершения работы вывода с консоли
-    input_console.join();
-}
+//     // ожидание завершения работы вывода с консоли
+//     input_console.join();
+// }
 
 void Server::addRequest(ServerSocket::Request &req)
 {
@@ -66,7 +66,7 @@ size_t Server::getReqQuSize() const
     return m_requests.size();
 }
 
-void Server::connectionProcessing()
+void Server::socketProcessing()
 {
     INFOS("Обработка соединений\n");
 
@@ -75,10 +75,10 @@ void Server::connectionProcessing()
     {
         // вызываем accept, если нет соединений, поток блокируется
         auto new_socket = m_listen_socket->accepts();
-
         // если получили nullptr, значит слушающий сокет закрылся
         if (new_socket == nullptr)
         {
+            INFOS("Сокет закрылся\n");
             m_is_running = 0;
             break;
         }
@@ -140,7 +140,7 @@ void Server::deleteSocketProcessing()
     }
 }
 
-void Server::requestProcess()
+void Server::logicProcessing()
 {
     while (m_is_running)
     {
@@ -165,18 +165,6 @@ void Server::requestProcess()
             // иначе, обрабатываем запрос с сокета
             else
             {
-                // std::string response("unknown request");
-                // {
-                //     if (req.m_data == "event:auth")
-                //     {
-                //         response = "welcome"; // отправляем результат обработки обратно сокету
-                //         req.m_socket->setData(response);
-                //     }
-                //     else
-                //     {
-                //         req.m_socket->setData(response);
-                //     }
-                // }
                 req.m_socket->setData(RequestManager::getResponse(req.m_data));               
             }
         }

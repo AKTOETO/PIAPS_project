@@ -53,8 +53,8 @@ std::string RequestManager::getResponse(const std::string &str)
     }
     catch (const std::exception &e)
     {
-        ERROR("Ошибка получения функции преобразования: %s\n", std::string(e.what()).c_str());
-        return JSON_ERROR("Нет функции преобразования типа");
+        ERROR("Ошибка распознавания типа: %s\n", std::string(e.what()).c_str());
+        return JSON_ERROR("Нет такого типа");
     }
 
     try
@@ -64,6 +64,7 @@ std::string RequestManager::getResponse(const std::string &str)
     catch (const std::exception &e)
     {
         std::cerr << e.what() << '\n';
+        return JSON_ERROR("Нет функции преобразования типа");
     }
 
     // обработка json файла

@@ -73,6 +73,7 @@ void Socket::creates(int domain, int type, int protocol)
 
 Socket::~Socket()
 {
+    INFOS("Деструктор сокета\n");
     closes();
 }
 
